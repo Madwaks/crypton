@@ -1,0 +1,35 @@
+version: '3.5'
+
+services:
+  postgresql:
+    container_name: hargrove
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    env_file:
+      - ../docker_env
+    volumes:
+      - 'hargrove_data:/postgresql'
+      - 'hargrove_conf:/postgresql/conf'
+      - 'hargrove_init:/docker-entrypoint-initdb.d'
+      - 'hargrove_preinit:/docker-entrypoint-preinitdb.d'
+    networks:
+      - trading-net
+
+volumes:
+  hargrove_data:
+    name: hargrove_data
+    driver: local
+  hargrove_conf:
+    name: hargrove_conf
+    driver: local
+  hargrove_init:
+    name: hargrove_init
+    driver: local
+  hargrove_preinit:
+    name: hargrove_preinit
+    driver: local
+
+networks:
+  trading-net:
+    name: trading_network

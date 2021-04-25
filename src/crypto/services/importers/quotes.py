@@ -1,4 +1,5 @@
 import json
+from logging import getLogger
 from pathlib import Path
 from typing import Union
 
@@ -11,6 +12,8 @@ from crypto.services.repositories.pair import SymbolRepository
 from crypto.services.repositories.quote import QuotesPairRepository
 from utils.binance_client import BinanceClient
 from utils.enums import TimeUnits
+
+logger = getLogger("django")
 
 
 @singleton
@@ -41,6 +44,7 @@ class QuotesPairImporter:
             symbol, time_unit, quotes_json
         )
         Quote.objects.bulk_create(quotes)
+        logger.info(f"[Quotes] Stored {len(quotes)} quotes")
 
     def _download_quotes(self, symbol, time_unit):
         client = docker.from_env()

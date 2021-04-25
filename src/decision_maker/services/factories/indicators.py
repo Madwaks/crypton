@@ -20,7 +20,6 @@ class DataFrameIndicatorFactory:
         return self._build_indicators(quotes_as_dataframe, symbol=symbol)
 
     def _build_dataframe(self, quotes_as_dataframe: DataFrame) -> NoReturn:
-        breakpoint()
         self.new_indicators_name.add(
             simple_moving_average(quotes_as_dataframe, period=7)
         )
@@ -41,10 +40,9 @@ class DataFrameIndicatorFactory:
         self, quotes_as_dataframe: DataFrame, symbol: Symbol
     ) -> List[Indicator]:
         list_indicators = []
+        quotes = Quote.objects.filter(symbol=symbol)
         for i, row in quotes_as_dataframe.fillna(0).iterrows():
-            breakpoint()
-            quote = Quote.objects.get(symbol=symbol, timestamp=row["timestamp"])
-            # if all([isna(row_value) ])
+            quote = quotes.get(timestamp=row["timestamp"])
             for indicator_name in self.new_indicators_name:
                 ind_val = row[indicator_name]
                 if (

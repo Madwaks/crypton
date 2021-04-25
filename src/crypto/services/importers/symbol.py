@@ -1,4 +1,5 @@
 import json
+from logging import getLogger
 from pathlib import Path
 from typing import NoReturn
 
@@ -8,6 +9,8 @@ from injector import singleton, inject
 from crypto.models import Symbol
 from crypto.services.factories.symbol import SymbolFactory
 from crypton import settings
+
+logger = getLogger("django")
 
 
 @singleton
@@ -29,6 +32,7 @@ class SymbolImporter:
     def _import_symbols(self, symbols_json: list[dict]):
         symbols = self._symbol_factory.build_symbols(symbols_json)
         Symbol.objects.bulk_create(symbols)
+        logger.info(f"[Symbols] Stored {len(symbols_json)} symbols")
 
     def _download_available_pairs(self) -> NoReturn:
         client = docker.from_env()

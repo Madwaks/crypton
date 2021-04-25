@@ -13,5 +13,5 @@ python src/manage.py migrate
 python src/manage.py importpairs
 #
 python src/manage.py importquotes --time-unit=4h --symbol=ETHBTC
-#
-#python src/manage.py storepairquotes --time-unit=4h
+
+python src/manage.py computeindicators

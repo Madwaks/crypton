@@ -43,9 +43,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Application definition
 # TODO: Find a way to uninstall some apps
-LOCAL_APPS = [
-    "crypto.apps.CryptoConfig"
-]
+LOCAL_APPS = ["crypto.apps.CryptoConfig", "decision_maker.apps.DecisionMakerConfig"]
 
 INSTALLED_APPS = [
     *LOCAL_APPS,
@@ -82,7 +80,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
     }
 ]

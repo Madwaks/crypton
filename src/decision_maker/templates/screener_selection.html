@@ -1,0 +1,27 @@
+{% load widget_tweaks %}
+
+<body>
+    <h2 style="text-align:center; color:blue;">ADD TRADE</h2>
+
+
+            <form method="POST" autocomplete="off">
+                {%csrf_token%}
+                    {{ form.management_form }}
+
+                    {% for f in form %}
+                        <div class="form-group">
+
+                            {% render_field f.name class="form-control" %}
+                            {% render_field f.operator class="form-control" %}
+                            {% render_field f.other_name class="form-control" %}
+                            {% render_field f.condition class="form-control" %}
+                        </div>
+
+                    {% endfor %}
+                 <button type="submit" class="btn btn-primary">SEND</button>
+
+            </form>
+
+
+</body>
+

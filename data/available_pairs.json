@@ -16930,5 +16930,41 @@
             "STOP_LOSS_LIMIT",
             "TAKE_PROFIT_LIMIT"
         ]
+    },
+    {
+        "symbol": "FORTHBTC",
+        "base_asset": "FORTH",
+        "quote_asset": "BTC",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "FORTHBUSD",
+        "base_asset": "FORTH",
+        "quote_asset": "BUSD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "FORTHUSDT",
+        "base_asset": "FORTH",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
     }
 ]

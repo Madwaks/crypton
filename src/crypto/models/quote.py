@@ -1,13 +1,6 @@
 from datetime import datetime
 
-from django.db.models import (
-    Model,
-    FloatField,
-    IntegerField,
-    ForeignKey,
-    SET_NULL,
-    CharField,
-)
+from django.db.models import Model, FloatField, ForeignKey, SET_NULL, CharField
 
 from crypto.managers.quotes import QuoteManager
 
@@ -18,7 +11,7 @@ class Quote(Model):
     close = FloatField(max_length=128, verbose_name="close_price")
     high = FloatField(max_length=128, verbose_name="high_price")
     low = FloatField(max_length=128, verbose_name="low_price")
-    volume = IntegerField(verbose_name="volumes")
+    volume = FloatField(verbose_name="volumes")
     symbol = ForeignKey(
         "crypto.Symbol",
         related_name="quotes",

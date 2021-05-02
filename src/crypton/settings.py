@@ -15,13 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-# STATIC_ROOT =
-STATICFILES_DIRS = [BASE_DIR / "static" / "files"]
-STATIC_URL = "/static/"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -43,7 +37,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Application definition
 # TODO: Find a way to uninstall some apps
-LOCAL_APPS = ["crypto.apps.CryptoConfig", "decision_maker.apps.DecisionMakerConfig"]
+LOCAL_APPS = [
+    "crypto.apps.CryptoConfig",
+    "decision_maker.apps.DecisionMakerConfig",
+    "welcome_dash.apps.WelcomeDashConfig",
+]
 
 INSTALLED_APPS = [
     *LOCAL_APPS,
@@ -53,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
 ]
 
 MIDDLEWARE = [
@@ -63,7 +62,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "crypton.urls"
@@ -85,7 +83,7 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "trade_fox.wsgi.application"
+WSGI_APPLICATION = "crypton.wsgi.application"
 
 
 # Database
@@ -134,7 +132,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+# STATIC_ROOT =
+STATICFILES_DIRS = [BASE_DIR / "crypton" / "static"]
 
 # DATA PATHS
 

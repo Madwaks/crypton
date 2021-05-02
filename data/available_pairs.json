@@ -16966,5 +16966,173 @@
             "STOP_LOSS_LIMIT",
             "TAKE_PROFIT_LIMIT"
         ]
+    },
+    {
+        "symbol": "CAKEGBP",
+        "base_asset": "CAKE",
+        "quote_asset": "GBP",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "DOGERUB",
+        "base_asset": "DOGE",
+        "quote_asset": "RUB",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "HOTBRL",
+        "base_asset": "HOT",
+        "quote_asset": "BRL",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "WRXEUR",
+        "base_asset": "WRX",
+        "quote_asset": "EUR",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "EZBTC",
+        "base_asset": "EZ",
+        "quote_asset": "BTC",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "EZETH",
+        "base_asset": "EZ",
+        "quote_asset": "ETH",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "BAKEUSDT",
+        "base_asset": "BAKE",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "BURGERBUSD",
+        "base_asset": "BURGER",
+        "quote_asset": "BUSD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "BURGERUSDT",
+        "base_asset": "BURGER",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "SLPBUSD",
+        "base_asset": "SLP",
+        "quote_asset": "BUSD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "SLPUSDT",
+        "base_asset": "SLP",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "TRXAUD",
+        "base_asset": "TRX",
+        "quote_asset": "AUD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "TRXEUR",
+        "base_asset": "TRX",
+        "quote_asset": "EUR",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "VETTRY",
+        "base_asset": "VET",
+        "quote_asset": "TRY",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
     }
 ]

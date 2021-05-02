@@ -1,7 +1,7 @@
-from typing import NoReturn, List
+from typing import List
 
 from injector import singleton
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 from crypto.models import Quote, Symbol
 from decision_maker.models import Indicator
@@ -10,31 +10,26 @@ from decision_maker.utils.indicators.moving_average import simple_moving_average
 
 @singleton
 class DataFrameIndicatorFactory:
-    def __init__(self):
-        self.new_indicators_name: set = set()
+    new_indicators_name: set = set()
 
     def build_indicators_from_dataframe(
         self, quotes_as_dataframe: DataFrame, symbol: Symbol
     ) -> List[Indicator]:
-        self._build_dataframe(quotes_as_dataframe)
-        return self._build_indicators(quotes_as_dataframe, symbol=symbol)
+        indicators_dataframe = self._build_dataframe(quotes_as_dataframe)
+        return self._build_indicators(indicators_dataframe, symbol=symbol)
 
-    def _build_dataframe(self, quotes_as_dataframe: DataFrame) -> NoReturn:
-        self.new_indicators_name.add(
-            simple_moving_average(quotes_as_dataframe, period=7)
-        )
-        self.new_indicators_name.add(
-            simple_moving_average(quotes_as_dataframe, period=20)
-        )
-        self.new_indicators_name.add(
-            simple_moving_average(quotes_as_dataframe, period=50)
-        )
-        self.new_indicators_name.add(
-            simple_moving_average(quotes_as_dataframe, period=100)
-        )
-        self.new_indicators_name.add(
-            simple_moving_average(quotes_as_dataframe, period=200)
-        )
+    def _build_dataframe(self, quotes_as_dataframe: DataFrame) -> DataFrame:
+        moving_avg_df = self._build_moving_average_df(quotes_as_dataframe)
+
+        return moving_avg_df
+
+    def _build_moving_average_df(self, quotes_as_df: DataFrame) -> DataFrame:
+        indicators_df = quotes_as_df.copy()
+        for period in [7, 20, 50, 100, 200]:
+            mm: Series = simple_moving_average(quotes_as_df, period=period)
+            self.new_indicators_name.add(mm.name)
+            indicators_df[mm.name] = mm
+        return indicators_df
 
     def _build_indicators(
         self, quotes_as_dataframe: DataFrame, symbol: Symbol

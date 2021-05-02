@@ -3,18 +3,12 @@ from django.db.models import TextChoices
 
 class TimeUnits(TextChoices):
     minutes1 = "1m"
-    minutes3 = "3m"
     minutes5 = "5m"
     minutes15 = "15m"
     minutes30 = "30m"
     HOUR1 = "1h"
-    HOUR2 = "2h"
     HOUR4 = "4h"
-    HOUR6 = "6h"
-    HOUR8 = "8h"
-    HOUR12 = "12h"
     DAY1 = "1d"
-    DAY3 = "3d"
     WEEK1 = "1w"
     MONTH1 = "1M"
 
@@ -35,7 +29,10 @@ class TimeUnits(TextChoices):
             self.minutes1.value: 1,
             self.minutes5.value: 5,
             self.minutes15.value: 15,
+            self.minutes30.value: 30,
             self.HOUR1.value: 60,
             self.HOUR4.value: 240,
             self.DAY1.value: 1440,
+            self.WEEK1.value: 10080,
+            self.MONTH1.value: None,
         }

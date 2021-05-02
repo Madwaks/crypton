@@ -8,11 +8,12 @@ def exp_moving_average(quotes: DataFrame, period: int) -> Series:
     return quotation_series.ewm(span=period, adjust=False).mean()
 
 
-def simple_moving_average(quotes: DataFrame, period: int) -> NoReturn:
+def simple_moving_average(quotes: DataFrame, period: int) -> Series:
     quotation_series = Series(data=quotes.close, index=quotes.index)
     rolling_mean_name = f"MM{period}"
-    quotes[rolling_mean_name] = quotation_series.rolling(window=period).mean()
-    return rolling_mean_name
+    mm = quotation_series.rolling(window=period).mean()
+    mm.name = rolling_mean_name
+    return mm
 
 
 def macd(quotes: DataFrame) -> NoReturn:

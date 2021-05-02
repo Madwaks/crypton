@@ -5,7 +5,9 @@ from injector import singleton
 from pandas import DataFrame, Series
 from sklearn.cluster import KMeans
 
-from core.models import Company
+from crypto.models import Symbol
+from decision_maker.models import SymbolIndicator
+from utils.enums import TimeUnits
 
 
 @singleton
@@ -13,12 +15,24 @@ class KeyLevelFactory:
     window_size: int = 50
     nb_digits: int = 2
     center: bool = False
+    closed: str = "left"
 
-    def build_key_level_for_company(self, company: Company) -> list[float]:
+    def build_key_level_for_symbol(
+        self, symbol: Symbol, time_unit: TimeUnits
+    ) -> list[SymbolIndicator]:
 
-        quotes: DataFrame = company.quotes.get_as_dataframe()
-        kmeans = KMeans(n_clusters=self._compute_nb_clusters(quotes))
+        quotes: DataFrame = symbol.quotes.get_as_dataframe(time_unit=time_unit)
 
+        prices = self._get_price_counter(quotes)
+        best_kmeans = self._find_best_kmeans(prices)
+
+        key_levels = list(best_kmeans.cluster_centers_.flatten())
+
+        return self._build_symbol_indicator_from_levels(
+            symbol=symbol, time_unit=time_unit, key_levels=key_levels
+        )
+
+    def _get_price_counter(self, quotes: DataFrame) -> list[float]:
         min_lows, max_lows = self._get_rolling_min_max(quotes, "low")
         min_opens, max_opens = self._get_rolling_min_max(quotes, "open")
         min_highs, max_highs = self._get_rolling_min_max(quotes, "high")
@@ -34,21 +48,34 @@ class KeyLevelFactory:
 
         counter_level.update(Counter(min_closes))
         counter_level.update(Counter(max_closes))
-        prices = list(counter_level.keys())
-
-        kmeans.fit(np.array(prices).reshape(-1, 1))
-
-        key_levels = list(kmeans.cluster_centers_.flatten())
-        return sorted(key_levels)
+        counter_level = {
+            price: counter for price, counter in counter_level.items() if counter > 50
+        }
+        return list(counter_level.keys())
 
     def _get_rolling_min_max(
         self, quotes_df: DataFrame, column_name: str
     ) -> tuple[Series, Series]:
-        rolling_df: Series = quotes_df[column_name].rolling(
-            self.window_size, center=self.center
-        )
+        rolling_df: Series = quotes_df[column_name].map(
+            lambda val: round(val, 2)
+        ).rolling(self.window_size, center=self.center, closed=self.closed)
         return rolling_df.min().dropna(), rolling_df.max().dropna()
 
     @staticmethod
-    def _compute_nb_clusters(quotes_df: DataFrame) -> int:
-        return 15
+    def _find_best_kmeans(prices: list[float]) -> KMeans:
+        kmeans_results: dict[float, KMeans] = dict()
+        for n_cluster in range(1, len(prices) + 1):
+            kmeans = KMeans(n_clusters=n_cluster)
+            kmeans.fit(np.array(prices).reshape(-1, 1))
+            kmeans_results[kmeans.inertia_] = kmeans
+        return kmeans_results[min(kmeans_results)]
+
+    def _build_symbol_indicator_from_levels(
+        self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]
+    ) -> list[SymbolIndicator]:
+        return [
+            SymbolIndicator(
+                name=f"KeyLevel{i}", value=level, symbol=symbol, time_unit=time_unit
+            )
+            for i, level in enumerate(sorted(key_levels))
+        ]

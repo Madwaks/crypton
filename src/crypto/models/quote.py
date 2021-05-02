@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db.models import Model, FloatField, ForeignKey, SET_NULL, CharField
 
 from crypto.managers.quotes import QuoteManager
+from utils.enums import TimeUnits
 
 
 class Quote(Model):
@@ -20,11 +21,13 @@ class Quote(Model):
         on_delete=SET_NULL,
     )
     close_time = CharField(max_length=512, null=True, blank=True)
-    time_unit = CharField(max_length=128, blank=True, null=True)
+    time_unit = CharField(
+        choices=TimeUnits.choices, max_length=128, blank=True, null=True
+    )
     objects = QuoteManager()
 
     def __str__(self):
-        return f"{self.symbol.name} - {self.open_date}"
+        return f"{self.symbol.name} - {self.open_date} - {self.time_unit}"
 
     @property
     def open_date(self):

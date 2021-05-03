@@ -1,6 +1,13 @@
 from datetime import datetime
 
-from django.db.models import Model, FloatField, ForeignKey, SET_NULL, CharField
+from django.db.models import (
+    Model,
+    FloatField,
+    ForeignKey,
+    SET_NULL,
+    CharField,
+    UniqueConstraint,
+)
 
 from crypto.managers.quotes import QuoteManager
 from utils.enums import TimeUnits
@@ -36,3 +43,9 @@ class Quote(Model):
     @property
     def close_date(self):
         return datetime.fromtimestamp(int(self.close_time) / 1000)
+
+    class Meta:
+        ordering = ("timestamp",)
+        constraints = (
+            UniqueConstraint(fields=("timestamp",), name="unique_per_timestamp"),
+        )

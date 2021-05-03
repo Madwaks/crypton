@@ -4,6 +4,8 @@ from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 from django_plotly_dash import DjangoDash
 
+from crypto.models import Quote, Symbol
+
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = DjangoDash("SimpleExample", external_stylesheets=external_stylesheets)
@@ -11,41 +13,45 @@ app = DjangoDash("SimpleExample", external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
     [
-        html.H1("Square Root Slider Graph"),
-        dcc.Graph(
-            id="slider-graph",
-            animate=True,
-            style={"backgroundColor": "#1a2d46", "color": "#ffffff"},
+        dcc.Dropdown(id="symbols", placeholder="Select symbol"),
+        dcc.Checklist(
+            id="toggle-rangeslider",
+            options=[{"label": "Include Rangeslider", "value": "slider"}],
+            value=["slider"],
         ),
-        dcc.Slider(
-            id="slider-updatemode",
-            marks={i: "{}".format(i) for i in range(20)},
-            max=20,
-            value=2,
-            step=1,
-            updatemode="drag",
-        ),
+        dcc.Graph(id="graph", animate=False),
+        dcc.Interval(id="slider"),
     ]
 )
 
 
-@app.callback(Output("slider-graph", "figure"), [Input("slider-updatemode", "value")])
-def display_value(value):
+@app.callback(Output("graph", "figure"), Input("symbols", "options"))
+def get_available_symbols():
+    breakpoint()
 
-    x = []
-    for i in range(value):
-        x.append(i)
 
-    y = []
-    for i in range(value):
-        y.append(i * i)
-
-    graph = go.Scatter(x=x, y=y, name="Manipulate Graph")
-    layout = go.Layout(
-        paper_bgcolor="#27293d",
-        plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(range=[min(x), max(x)]),
-        yaxis=dict(range=[min(y), max(y)]),
-        font=dict(color="white"),
+@app.callback(Output("graph", "figure"), [Input("toggle-rangeslider", "value")])
+def display_candlestick(value):
+    symbol = Symbol.objects.get(name="ETHBTC")
+    time_unit = "1d"
+    quotes = Quote.objects.filter(symbol=symbol, time_unit=time_unit).only(
+        "open", "close", "high", "low"
     )
-    return {"data": [graph], "layout": layout}
+
+    fig = go.Figure(
+        go.Candlestick(
+            x=[quote.open_date for quote in quotes],
+            open=[quote.open for quote in quotes],
+            high=[quote.high for quote in quotes],
+            low=[quote.low for quote in quotes],
+            close=[quote.close for quote in quotes],
+        )
+    )
+    fig.layout.yaxis.range = [
+        min([quote.low for quote in quotes]),
+        max([quote.high for quote in quotes]),
+    ]
+
+    fig.update_layout(xaxis_rangeslider_visible="slider" in value, height=700)
+
+    return fig

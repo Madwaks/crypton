@@ -15,6 +15,19 @@ services:
       - 'hargrove_preinit:/docker-entrypoint-preinitdb.d'
     networks:
       - trading-net
+  redis:
+    container_name: crypton-redis
+    image: bitnami/redis:4.0.14-debian-10-r30
+    command: /run.sh --maxmemory 250mb
+    ports:
+      - '6379:6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - 'redis_data:/bitnami/redis'
+    networks:
+      - trading-net
+
 
 volumes:
   hargrove_data:
@@ -28,6 +41,8 @@ volumes:
     driver: local
   hargrove_preinit:
     name: hargrove_preinit
+    driver: local
+  redis_data:
     driver: local
 
 networks:

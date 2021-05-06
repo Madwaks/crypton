@@ -1,10 +1,11 @@
-{% extends "base.html" %}
 {% load static %}
 {% load plotly_dash %}
+<head>
+
+    <title>Crypto</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
 {% block content %}
-    <h1>
-        Home Page
-    </h1>
     <div class ="{% plotly_class name='SimpleExample' %} card" style="height: 100%; width: 100%">
         {% plotly_app name='SimpleExample' ratio=100 %}
     </div>

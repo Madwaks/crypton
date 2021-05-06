@@ -10,7 +10,6 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = DjangoDash("SimpleExample", external_stylesheets=external_stylesheets)
 
-
 app.layout = html.Div(
     [
         dcc.Dropdown(id="symbols", placeholder="Select symbol"),
@@ -20,17 +19,19 @@ app.layout = html.Div(
             value=["slider"],
         ),
         dcc.Graph(id="graph", animate=False),
-        dcc.Interval(id="slider"),
     ]
 )
 
 
-@app.callback(Output("graph", "figure"), Input("symbols", "options"))
-def get_available_symbols():
+@app.callback(Output("graph", "figure"), [Input("symbols", "values")])
+def get_available_symbols(values):
     breakpoint()
 
 
-@app.callback(Output("graph", "figure"), [Input("toggle-rangeslider", "value")])
+@app.callback(
+    Output("graph", "figure"),
+    [Input("toggle-rangeslider", "value"), Input("symbols", "values")],
+)
 def display_candlestick(value):
     symbol = Symbol.objects.get(name="ETHBTC")
     time_unit = "1d"

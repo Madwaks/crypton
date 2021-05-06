@@ -4,7 +4,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models import Model, CharField, UniqueConstraint
 
 
-
 class Statuses(Enum):
     ACTIVE = "TRADING"
 
@@ -19,8 +18,8 @@ class Symbol(Model):
         return self.name
 
     class Meta:
-        verbose_name = "CryptoPair"
-        verbose_name_plural = "CryptoPairs"
+        verbose_name = "Symbol"
+        verbose_name_plural = "Symbols"
         ordering = ("name", "base_asset", "quote_asset")
         constraints = (
             UniqueConstraint(

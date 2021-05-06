@@ -34,7 +34,7 @@ class Operator(TextChoices):
     GTE = ">=", _("GREATER OR EQUAL")
 
 
-class Condition(TextChoices):
+class LogicOp(TextChoices):
     AND = "AND", _("AND")
     OR = "OR", _("OR")
     DISABLED = "DISABLED", _("None")

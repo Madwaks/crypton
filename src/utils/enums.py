@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from dateutil.relativedelta import relativedelta
 from django.db.models import TextChoices
 
 
@@ -36,3 +39,20 @@ class TimeUnits(TextChoices):
             self.WEEK1.value: 10080,
             self.MONTH1.value: None,
         }
+
+    @property
+    def timedelta_mapping(self):
+        return {
+            self.minutes1.value: timedelta(minutes=1),
+            self.minutes5.value: timedelta(minutes=5),
+            self.minutes15.value: timedelta(minutes=15),
+            self.minutes30.value: timedelta(minutes=30),
+            self.HOUR1.value: timedelta(hours=1),
+            self.HOUR4.value: timedelta(hours=4),
+            self.DAY1.value: timedelta(days=1),
+            self.WEEK1.value: timedelta(weeks=1),
+            self.MONTH1.value: relativedelta(month=1),
+        }
+
+    def to_timedelta(self):
+        return self.timedelta_mapping[self.value]

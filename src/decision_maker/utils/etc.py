@@ -156,3 +156,11 @@ def _compute_indicators(quote: Quote):  # noqa: C901
             name="mm_200",
             value=compute_moving_average(quote, period=200),
         ).save()
+
+
+def get_timestamp_diff_unit(
+    quote: Quote, diff_number: int
+) -> datetime.datetime.timestamp:
+    return datetime.datetime.timestamp(
+        quote.open_date - diff_number * quote.time_unit.to_timedelta()
+    )

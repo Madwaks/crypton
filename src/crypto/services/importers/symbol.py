@@ -21,7 +21,7 @@ class SymbolImporter:
         pass
 
     @property
-    def json_file_path(self):
+    def json_file_path(self) -> Path:
         return settings.CRYPTO_FOLDER_PATH / "available_pairs.json"
 
     def import_all_symbols(self):

@@ -1,22 +1,31 @@
-from typing import Union
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from random import choice
+from typing import Union, Any
 
 from injector import singleton, inject
 
 from crypto.models import Symbol
-from crypton import settings
 
 
 @singleton
 class SymbolRepository:
-	@inject
-	def __init__(self):
-		pass
+    @dataclass
+    class Configuration:
+        symbol_json_file: Path
 
-	@property
-	def json_file_path(self):
-		return settings.CRYPTO_FOLDER_PATH / "pair.json"
+    @inject
+    def __init__(self, config: Configuration):
+        self._config = config
 
-	def get_symbol_from_code(self, symbol: Union[Symbol, str]) -> Symbol:
-		if isinstance(symbol, Symbol):
-			return symbol
-		return Symbol.objects.get(name=symbol)
+    def get_symbols_from_file(self) -> list[dict[str, Any]]:
+        return json.loads(self._config.symbol_json_file.read_text())
+
+    def get_one_symbol(self):
+        return choice(json.loads(self._config.symbol_json_file.read_text()))
+
+    def get_symbol_from_code(self, symbol: Union[Symbol, str]) -> Symbol:
+        if isinstance(symbol, Symbol):
+            return symbol
+        return Symbol.objects.get(name=symbol)

@@ -2,37 +2,41 @@ from typing import Type, Optional
 from typing import TypeVar
 
 from django.conf import settings, LazySettings
-from injector import Injector, Binder
+from injector import Injector, Binder, ClassAssistedBuilder
+
+from crypto.services.repositories.pair import SymbolRepository
+from crypto.services.repositories.quote import QuotesPairRepository
 
 T = TypeVar("T")
 
 _injector: Optional[Injector] = None
 
 
-def _configure_crypto_quots(binder: Binder, settings: LazySettings):
-    from crypto.services.repositories.quote_pair import QuotesPairRepository
+def _configure_quotes_repository(binder: Binder, settings: LazySettings):
 
     binder.bind(
         QuotesPairRepository.Configuration,
         QuotesPairRepository.Configuration(
-            file_folder_path=settings.CRYPTO_QUOTES_FOLDER
+            json_folder=settings.CRYPTO_FOLDER_PATH / "json",
+            csv_folder=settings.CRYPTO_FOLDER_PATH / "csv",
         ),
     )
 
 
-def _configure_quotes_storer(binder: Binder, settings: LazySettings):
-    from core.utils.download_data.quotes.boursorama import QuotationDownloader
+def _configure_symbol_repository(binder: Binder, settings: LazySettings):
 
     binder.bind(
-        QuotationDownloader.Configuration,
-        QuotationDownloader.Configuration(
-            quotes_json_folder=settings.QUOTES_FOLDER_PATH
+        SymbolRepository.Configuration,
+        SymbolRepository.Configuration(
+            symbol_json_file=settings.CRYPTO_FOLDER_PATH / "pair.json"
         ),
     )
 
 
 def _configure(binder: Binder):
-    pass
+    _configure_quotes_repository(binder, settings)
+    _configure_symbol_repository(binder, settings)
+
 
 def _create_injector():
     global _injector
@@ -44,3 +48,11 @@ def provide(clazz: Type[T]) -> T:
     _create_injector()
 
     return _injector.get(clazz)
+
+
+def build(clazz: Type[T], **kwargs) -> T:
+    _create_injector()
+
+    builder: ClassAssistedBuilder = _injector.get(ClassAssistedBuilder[clazz])
+
+    return builder.build(**kwargs)

@@ -38,7 +38,7 @@ class QuotesPairImporter:
     def import_quotes(self, symbol: Union[str, Symbol], time_unit: TimeUnits):
         self._download_quotes(symbol, time_unit)
         symbol = self._symbol_repo.get_symbol_from_code(symbol)
-        json_file = self._quotes_repo.get_json_name_for_symbol(symbol, time_unit)
+        json_file = self._quotes_repo.get_json_path_for_symbol(symbol, time_unit)
         quotes_json = json.loads(json_file.read_text())
         quotes = self._quote_factory.build_quote_for_symbol(
             symbol, time_unit, quotes_json

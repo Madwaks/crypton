@@ -1,15 +1,11 @@
-from django.db.models import Model, SET_NULL, ManyToManyField
+from django.db.models import Model, ManyToManyField
 
 from decision_maker.models.enums import LogicOp
 
 
 class Strategy(Model):
     conditions = ManyToManyField(
-        "decision_maker.Condition",
-        related_name="strategies",
-        max_length=128,
-        null=True,
-        on_delete=SET_NULL,
+        "decision_maker.Condition", related_name="strategies", max_length=128
     )
 
     def fulfill_conditions(self) -> bool:

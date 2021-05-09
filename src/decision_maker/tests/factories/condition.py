@@ -10,8 +10,8 @@ class ConditionFactory(factory.django.DjangoModelFactory):
         model = Condition
         strategy = factory.enums.BUILD_STRATEGY
 
-    base_name = FuzzyChoice(AvailableIndicators, getter=lambda c: c)
-    operator = FuzzyChoice(Operator.choices)
-    name_to_compare = FuzzyChoice(AvailableIndicators, getter=lambda c: c)
-    day_number = factory.Faker("random_int", min_value=0, max_value=20)
-    condition = FuzzyChoice(max_length=16, choices=LogicOp.choices)
+    base_name = FuzzyChoice(choices=AvailableIndicators.values)
+    operator = FuzzyChoice(choices=Operator.values)
+    name_to_compare = FuzzyChoice(choices=AvailableIndicators.values)
+    time_unit_before = factory.Faker("random_int", min=0, max=20)
+    condition = FuzzyChoice(choices=LogicOp.values)

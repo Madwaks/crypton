@@ -7,6 +7,7 @@ from pandas.tseries.offsets import BDay
 
 from crypto.models import Quote
 from decision_maker.models import Indicator
+from utils.enums import TimeUnits
 
 
 def get_quotations_range(quotation: Quote, date_range: List["datetime"]) -> QuerySet:
@@ -161,6 +162,9 @@ def _compute_indicators(quote: Quote):  # noqa: C901
 def get_timestamp_diff_unit(
     quote: Quote, diff_number: int
 ) -> datetime.datetime.timestamp:
-    return datetime.datetime.timestamp(
-        quote.open_date - diff_number * quote.time_unit.to_timedelta()
+    time_unit = TimeUnits.from_code(quote.time_unit)
+    return int(
+        datetime.datetime.timestamp(
+            quote.open_date - diff_number * time_unit.to_timedelta()
+        )
     )

@@ -21,6 +21,7 @@ class Condition(Model):
             compared_indicator = quote.indicators.get(name=self.name_to_compare)
         else:
             timestamp = get_timestamp_diff_unit(quote, int(self.time_unit_before))
+            breakpoint()
             previous_quote = Quote.objects.get(timestamp=quote.timestamp - timestamp)
 
             compared_indicator = previous_quote.indicators.get(

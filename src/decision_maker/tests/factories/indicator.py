@@ -3,6 +3,7 @@ from factory import SubFactory
 from factory.fuzzy import FuzzyChoice
 
 from decision_maker.models import Indicator
+from decision_maker.models.enums import AvailableIndicators
 
 
 class IndicatorFactory(factory.django.DjangoModelFactory):
@@ -10,7 +11,7 @@ class IndicatorFactory(factory.django.DjangoModelFactory):
         model = Indicator
         strategy = factory.enums.BUILD_STRATEGY
 
-    name = FuzzyChoice(Indicator.AvailableIndicators, getter=lambda c: c)
+    name = FuzzyChoice(AvailableIndicators, getter=lambda c: c)
     value = factory.Faker(
         "pyfloat",
         left_digits=2,
@@ -20,4 +21,4 @@ class IndicatorFactory(factory.django.DjangoModelFactory):
         right_digits=2,
     )
 
-    quote = SubFactory("core.tests.factories.quotes.QuotesFactory")
+    quote = SubFactory("crypto.tests.factories.quote.QuotesFactory")

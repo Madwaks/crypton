@@ -1,14 +1,11 @@
 import pytest
 from pytest_factoryboy import register
 
-from core.tests.factories.company import CompanyFactory
-from core.tests.factories.company_info import CompanyInfoFactory
-from core.tests.factories.quotes import QuotesFactory
+from crypto.tests.factories.quote import QuotesFactory
 from decision_maker.models import Indicator
+from decision_maker.models.enums import AvailableIndicators
 from decision_maker.tests.factories.indicator import IndicatorFactory
 
-register(CompanyInfoFactory)
-register(CompanyFactory)
 register(QuotesFactory)
 register(IndicatorFactory)
 register(IndicatorFactory, "other_indicator")
@@ -16,7 +13,7 @@ register(IndicatorFactory, "other_indicator")
 
 @pytest.mark.django_db
 def test_indicator(indicator: Indicator):
-    assert indicator.name.value in Indicator.AvailableIndicators.values
+    assert indicator.name.value in AvailableIndicators.values
     assert str(indicator) == f"{str(indicator.quote)} {str(indicator.name)}"
     assert hash(indicator) == hash(str(indicator.pk) + indicator.name)
 

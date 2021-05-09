@@ -38,11 +38,17 @@ class Quote(Model):
 
     @property
     def open_date(self):
-        return datetime.fromtimestamp(int(self.timestamp) / 1000)
+        dt = datetime.fromtimestamp(int(self.timestamp) / 1000)
+        return datetime(
+            year=dt.year, month=dt.month, day=dt.day, minute=dt.minute, second=dt.second
+        )
 
     @property
     def close_date(self):
-        return datetime.fromtimestamp(int(self.close_time) / 1000)
+        dt = datetime.fromtimestamp(int(self.close_time) / 1000)
+        return datetime(
+            year=dt.year, month=dt.month, day=dt.day, minute=dt.minute, second=dt.second
+        )
 
     class Meta:
         ordering = ("timestamp",)

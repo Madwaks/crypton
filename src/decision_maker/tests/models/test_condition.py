@@ -14,8 +14,8 @@ register(ConditionFactory, "third_condition")
 register(ConditionFactory, "fourth_condition")
 register(ConditionFactory, "fifth_condition")
 register(QuotesFactory)
-register(IndicatorFactory, "indicator")
-register(IndicatorFactory, "second_indicator")
+register(IndicatorFactory, "indicator", name="MM7", value=3)
+register(IndicatorFactory, "second_indicator", name="MM20", value=5)
 
 
 @pytest.fixture(scope="function")

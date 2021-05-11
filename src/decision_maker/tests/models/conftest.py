@@ -8,7 +8,7 @@ from utils.service_provider import provide
 class _MockQuoteFactory(QuoteSymbolFactory):
     def build_previous_quote_from_quote(self, quote: Quote, ts_before: int):
         return Quote(
-            timestamp=quote.timestamp,
+            timestamp=quote.timestamp - ts_before,
             open=quote.open,
             close=quote.close,
             high=quote.high,

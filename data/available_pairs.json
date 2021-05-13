@@ -17134,5 +17134,101 @@
             "STOP_LOSS_LIMIT",
             "TAKE_PROFIT_LIMIT"
         ]
+    },
+    {
+        "symbol": "SHIBUSDT",
+        "base_asset": "SHIB",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "SHIBBUSD",
+        "base_asset": "SHIB",
+        "quote_asset": "BUSD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "ICPBTC",
+        "base_asset": "ICP",
+        "quote_asset": "BTC",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "ICPBNB",
+        "base_asset": "ICP",
+        "quote_asset": "BNB",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "ICPBUSD",
+        "base_asset": "ICP",
+        "quote_asset": "BUSD",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "ICPUSDT",
+        "base_asset": "ICP",
+        "quote_asset": "USDT",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "BTCGYEN",
+        "base_asset": "BTC",
+        "quote_asset": "GYEN",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
+    },
+    {
+        "symbol": "USDTGYEN",
+        "base_asset": "USDT",
+        "quote_asset": "GYEN",
+        "order_types": [
+            "LIMIT",
+            "LIMIT_MAKER",
+            "MARKET",
+            "STOP_LOSS_LIMIT",
+            "TAKE_PROFIT_LIMIT"
+        ]
     }
 ]

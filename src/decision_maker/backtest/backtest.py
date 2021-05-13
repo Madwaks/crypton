@@ -1,7 +1,7 @@
 from injector import singleton, inject
 
 from crypto.models import Symbol
-from decision_maker.models.strategy import Strategy
+from utils.enums import TimeUnits
 
 
 @singleton
@@ -10,13 +10,8 @@ class Backtester:
     def __init__(self):
         pass
 
-    def apply_strategy_to_symbol(
-        self, strategy: Strategy, symbol: Symbol
-    ):  # -> "Result":
-        quotes = symbol.quotes.order_by("timestamp")
+    def apply_to_symbol(self, symbol: Symbol, time_unit: TimeUnits):
+        quotes = symbol.quotes.filter(time_unit=time_unit.value).order_by("timestamp")
 
-        for currenr_quote in quotes:
-            if strategy.fulfill_conditions():
-                self._send_order(currenr_quote)
-            else:
-                continue
+        for current_quote in quotes:
+            pass

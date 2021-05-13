@@ -1,4 +1,4 @@
-from django.db.models import Model, CharField
+from django.db.models import Model, CharField, UniqueConstraint
 
 from crypto.models import Quote
 from decision_maker.models.enums import Operator, AvailableIndicators, LogicOp
@@ -20,3 +20,18 @@ class Condition(Model):
         return eval(
             f"{base_indicator.value} {self.operator} {compared_indicator.value}"
         )
+
+    class Meta:
+        ordering = ("base_name", "name_to_compare")
+        constraints = (
+            UniqueConstraint(
+                fields=("base_name", "name_to_compare", "operator"),
+                name="unique_per_indicators_and_operator",
+            ),
+        )
+
+    def save(self, **kwargs):
+        if self.pk:
+            return
+        else:
+            super().save(**kwargs)

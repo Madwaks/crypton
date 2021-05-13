@@ -1,5 +1,6 @@
 from django.db.models import Model, ManyToManyField
 
+from crypto.models import Quote
 from decision_maker.models.enums import LogicOp
 
 
@@ -8,16 +9,23 @@ class Strategy(Model):
         "decision_maker.Condition", related_name="strategies", max_length=128
     )
 
-    def fulfill_conditions(self) -> bool:
+    def fulfill_conditions(self, quote: Quote) -> bool:
+
         and_condition = [
-            cond.is_fulfilled
-            for cond in self.conditions
+            cond.is_fulfilled(quote)
+            for cond in self.conditions.all()
             if cond.condition == LogicOp.AND
         ]
         or_condition = [
-            cond.is_fulfilled
-            for cond in self.conditions
+            cond.is_fulfilled(quote)
+            for cond in self.conditions.all()
             if cond.condition == LogicOp.OR
         ]
 
-        return all(and_condition) and any(or_condition)
+        return (
+            all(and_condition)
+            if and_condition
+            else True and any(or_condition)
+            if or_condition
+            else True
+        )

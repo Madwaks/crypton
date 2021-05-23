@@ -46,4 +46,14 @@ class AvailableIndicators(TextChoices):
     MM50 = "MM50", _("Moyenne mobile 50")
     MM100 = "MM100", _("Moyenne mobile 100")
     MM200 = "MM200", _("Moyenne mobile 200")
-    PRICE = "price", _("Price")
+
+    @classmethod
+    def from_code(cls, code: str):
+        for c_type in cls:
+            if c_type.value == code:
+                return c_type
+        return None
+
+    @property
+    def speed(self):
+        return 1000 / int(self.name.split("MM")[-1])

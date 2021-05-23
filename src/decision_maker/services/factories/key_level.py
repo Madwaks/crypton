@@ -12,7 +12,7 @@ from utils.enums import TimeUnits
 
 @singleton
 class KeyLevelFactory:
-    window_size: int = 50
+    window_size: int = 100
     nb_digits: int = 2
     center: bool = False
     closed: str = "left"
@@ -48,8 +48,9 @@ class KeyLevelFactory:
 
         counter_level.update(Counter(min_closes))
         counter_level.update(Counter(max_closes))
+
         counter_level = {
-            price: counter for price, counter in counter_level.items() if counter > 50
+            price: counter for price, counter in counter_level.items() if counter >= 100
         }
         return list(counter_level.keys())
 
@@ -57,14 +58,14 @@ class KeyLevelFactory:
         self, quotes_df: DataFrame, column_name: str
     ) -> tuple[Series, Series]:
         rolling_df: Series = quotes_df[column_name].map(
-            lambda val: round(val, 2)
+            lambda val: round(val, 6)
         ).rolling(self.window_size, center=self.center, closed=self.closed)
         return rolling_df.min().dropna(), rolling_df.max().dropna()
 
     @staticmethod
     def _find_best_kmeans(prices: list[float]) -> KMeans:
         kmeans_results: dict[float, KMeans] = dict()
-        for n_cluster in range(1, len(prices) + 1):
+        for n_cluster in range(1, int(len(prices) + 1 / 2)):
             kmeans = KMeans(n_clusters=n_cluster)
             kmeans.fit(np.array(prices).reshape(-1, 1))
             kmeans_results[kmeans.inertia_] = kmeans

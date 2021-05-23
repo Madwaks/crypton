@@ -40,18 +40,30 @@ class Quote(Model):
     def open_date(self):
         dt = datetime.fromtimestamp(int(self.timestamp) / 1000)
         return datetime(
-            year=dt.year, month=dt.month, day=dt.day, minute=dt.minute, second=dt.second
+            year=dt.year,
+            month=dt.month,
+            day=dt.day,
+            hour=dt.hour,
+            minute=dt.minute,
+            second=dt.second,
         )
 
     @property
     def close_date(self):
         dt = datetime.fromtimestamp(int(self.close_time) / 1000)
         return datetime(
-            year=dt.year, month=dt.month, day=dt.day, minute=dt.minute, second=dt.second
+            year=dt.year,
+            month=dt.month,
+            day=dt.day,
+            hour=dt.hour,
+            minute=dt.minute,
+            second=dt.second,
         )
 
     class Meta:
         ordering = ("timestamp",)
         constraints = (
-            UniqueConstraint(fields=("timestamp",), name="unique_per_timestamp"),
+            UniqueConstraint(
+                fields=("timestamp", "time_unit"), name="unique_per_timestamp_and_tu"
+            ),
         )

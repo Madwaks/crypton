@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Union
 
 import docker
+from django.db import IntegrityError
 from injector import singleton, inject
 
 from crypto.models import Symbol, Quote
@@ -43,8 +44,7 @@ class QuotesPairImporter:
         quotes = self._quote_factory.build_quote_for_symbol(
             symbol, time_unit, quotes_json
         )
-        Quote.objects.bulk_create(quotes)
-        logger.info(f"[Quotes] Stored {len(quotes)} quotes")
+        self._save_objects(quotes)
 
     def _download_quotes(self, symbol, time_unit):
         client = docker.from_env()
@@ -55,3 +55,15 @@ class QuotesPairImporter:
             volumes={host_directory: {"bind": "/data", "mode": "rw"}},
             remove=True,
         )
+
+    def _save_objects(self, quotes: list[Quote]):
+        try:
+            Quote.objects.bulk_create(quotes)
+            logger.info(f"[Quotes] Stored {len(quotes)} quotes")
+        except IntegrityError as err:
+            logger.info(err)
+            logger.info("[Quote] Trying to save objects 1by1 ")
+
+            for quote in quotes:
+                if not Quote.objects.filter(timestamp=quote.timestamp).exists():
+                    quote.save()

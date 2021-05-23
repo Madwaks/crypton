@@ -14,3 +14,6 @@ class IndicatorManager(Manager):
                 pass
 
         return self.filter()
+
+    def get_dict_states(self):
+        return self.filter()

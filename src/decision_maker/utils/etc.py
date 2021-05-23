@@ -20,7 +20,7 @@ def get_timestamp_diff_unit(
     )
 
 
-def is_quote_in_tolerance_range(base_value: float, ind_value: float, tolerance: float):
+def is_in_tolerance_range(base_value: float, ind_value: float, tolerance: float):
     bound1 = base_value - base_value * tolerance
     bound2 = base_value + base_value * tolerance
     return bound1 < ind_value < bound2

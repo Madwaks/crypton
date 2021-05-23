@@ -6,3 +6,6 @@ POSTGRESQL_PORT=5432
 
 DRIVER_PATH=src/data/utils/driver_manager/chromedriver
 DOWNLOAD_PATH=static/data/quotes
+
+TEST_API_KEY=nJP6VXHwbvDHxf7c3j95V4JU8njXV1cIcS4GDQP8M6rUL1IS2h8ssaVpDP5OQEVn
+TEST_SECRET_KEY=x2qYpIApwbSlOKpRziuRwGxylCwiSUpZUgDaUjX39QsoYP24hD4ijzHLbsc8jwoq

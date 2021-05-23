@@ -1,6 +1,6 @@
 from django.db import models
 
-from crypto.utils.enums import PositionStatus
+from crypto.utils.enums import OrderType
 
 
 class Position(models.Model):
@@ -14,7 +14,7 @@ class Position(models.Model):
     date = models.DateField()
     nb_titres = models.IntegerField()
     pru = models.FloatField()
-    status = models.CharField(max_length=128, choices=PositionStatus.choices)
+    status = models.CharField(max_length=128, choices=OrderType.choices)
 
     portfolio = models.ForeignKey(
         "crypto.Portfolio",

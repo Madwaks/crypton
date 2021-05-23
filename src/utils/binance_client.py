@@ -1,10 +1,12 @@
 import math
+from dataclasses import dataclass
 from datetime import datetime
 from logging import getLogger
 from time import sleep
 from typing import TYPE_CHECKING, Any
 
 from binance.client import Client
+from injector import singleton, inject
 from pandas import to_datetime, DataFrame
 
 from crypto.models import Symbol
@@ -71,3 +73,17 @@ class BinanceClient(Client):
         )
         sleep(0.5)
         return old, new
+
+
+@singleton
+class TestClient(BinanceClient):
+    API_URL = "https://testnet.binance.vision/api"
+
+    @dataclass
+    class Configuration:
+        api_key: str
+        secret_key: str
+
+    @inject
+    def __init__(self, _config: Configuration):
+        super().__init__(api_key=_config.api_key, api_secret=_config.secret_key)

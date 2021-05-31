@@ -66,27 +66,55 @@ class IndicatorComputer:
         if isinstance(symbol, str):
             symbol = Symbol.objects.get(name=symbol)
 
-        quote_states = self._distance_factory.build_states_from_quote(
+        quote_states = self._distance_factory.build_states_from_quotes(
             symbol.quotes.all()
         )
         self.save_states(quote_states)
 
     @staticmethod
     def save_states(quote_list: list[QuoteState]):
-        QuoteState.objects.bulk_create(quote_list)
+        try:
+            QuoteState.objects.bulk_create(quote_list)
+        except:
+            logger.info("[Distances] Some distances are already known, trying 1by1...")
+            for quote_state in quote_list:
+                try:
+                    quote_state.save()
+                except:
+                    continue
 
         logger.info(f"[Distances] Stored {len(quote_list)} quote states")
 
     @staticmethod
     def _save_indicators(indicator_list: List[Indicator]) -> NoReturn:
-        Indicator.objects.bulk_create(indicator_list)
+        try:
+            Indicator.objects.bulk_create(indicator_list)
+        except:
+            logger.info(
+                "[Indicators] Some indicators are already known, trying 1by1..."
+            )
+            for indicator in indicator_list:
+                try:
+                    indicator.save()
+                except:
+                    continue
         logger.info(
             f"[Indicators] Stored {len(indicator_list)} indicator values for {set([ind.name for ind in indicator_list])}"
         )
 
     @staticmethod
     def _save_symbol_indicators(indicator_list: List[SymbolIndicator]) -> NoReturn:
-        SymbolIndicator.objects.bulk_create(indicator_list)
+        try:
+            SymbolIndicator.objects.bulk_create(indicator_list)
+        except:
+            logger.info(
+                "[Indicators] Some indicators are already known, trying 1by1..."
+            )
+            for indicator in indicator_list:
+                try:
+                    indicator.save()
+                except:
+                    continue
         logger.info(
             f"[Indicators] Stored {len(indicator_list)} indicator values for {set([ind.name for ind in indicator_list])}"
         )

@@ -4,6 +4,7 @@ import numpy as np
 from injector import singleton
 from pandas import DataFrame, Series
 from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 from crypto.models import Symbol
 from decision_maker.models import SymbolIndicator
@@ -65,7 +66,7 @@ class KeyLevelFactory:
     @staticmethod
     def _find_best_kmeans(prices: list[float]) -> KMeans:
         kmeans_results: dict[float, KMeans] = dict()
-        for n_cluster in range(1, int(len(prices) + 1 / 2)):
+        for n_cluster in range(5, int(len(prices) + 1 / 2)):
             kmeans = KMeans(n_clusters=n_cluster)
             kmeans.fit(np.array(prices).reshape(-1, 1))
             kmeans_results[kmeans.inertia_] = kmeans
@@ -74,9 +75,10 @@ class KeyLevelFactory:
     def _build_symbol_indicator_from_levels(
         self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]
     ) -> list[SymbolIndicator]:
-        return [
-            SymbolIndicator(
+        list_sind = []
+        for i, level in tqdm(enumerate(sorted(key_levels))):
+            s_ind = SymbolIndicator(
                 name=f"KeyLevel{i}", value=level, symbol=symbol, time_unit=time_unit
             )
-            for i, level in enumerate(sorted(key_levels))
-        ]
+            list_sind.append(s_ind)
+        return list_sind

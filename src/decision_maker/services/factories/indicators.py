@@ -2,6 +2,7 @@ from typing import List
 
 from injector import singleton
 from pandas import DataFrame, Series
+from tqdm import tqdm
 
 from crypto.models import Quote, Symbol
 from decision_maker.models import Indicator
@@ -35,8 +36,8 @@ class DataFrameIndicatorFactory:
         self, quotes_as_dataframe: DataFrame, symbol: Symbol
     ) -> List[Indicator]:
         list_indicators = []
-        quotes = Quote.objects.filter(symbol=symbol)
-        for i, row in quotes_as_dataframe.fillna(0).iterrows():
+        quotes = Quote.objects.filter(symbol=symbol).prefetch_related("indicators")
+        for i, row in tqdm(quotes_as_dataframe.fillna(0).iterrows()):
             quote = quotes.get(timestamp=row["timestamp"])
             for indicator_name in self.new_indicators_name:
                 ind_val = row[indicator_name]

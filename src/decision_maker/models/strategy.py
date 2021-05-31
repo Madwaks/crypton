@@ -9,6 +9,10 @@ class Strategy(Model):
         "decision_maker.Condition", related_name="strategies", max_length=128
     )
 
+    def apply_to_quote(self, quote: Quote):
+
+        pass
+
     def fulfill_conditions(self, quote: Quote) -> bool:
 
         and_condition = [

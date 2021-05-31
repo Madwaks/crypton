@@ -23,11 +23,6 @@ app.layout = html.Div(
 )
 
 
-@app.callback(Output("graph", "figure"), [Input("symbols", "values")])
-def get_available_symbols(values):
-    breakpoint()
-
-
 @app.callback(
     Output("graph", "figure"),
     [Input("toggle-rangeslider", "value"), Input("symbols", "values")],

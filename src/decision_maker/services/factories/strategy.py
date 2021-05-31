@@ -20,10 +20,13 @@ class StrategyFactory:
 
         nb_buy_signals = self._get_buy_signals(quote)
         nb_sell_signals = self._get_sell_signals(quote)
-        if nb_buy_signals > nb_sell_signals:
+
+        if nb_sell_signals > 1.25 * nb_buy_signals:
+            return Side.SELL
+        elif nb_buy_signals > 1.25 * nb_sell_signals:
             return Side.BUY
         else:
-            return Side.SELL
+            return None
 
     def _get_buy_signals(self, quote: Quote) -> int:
         quote_state: QuoteState = QuoteState.objects.get(quote=quote)
@@ -65,7 +68,7 @@ class StrategyFactory:
         sell_signals_count += Counter(indicators_on_support)[False]
 
         candlestick_on_res = [
-            is_in_tolerance_range(getattr(quote, field), near_supp, tolerance)
+            is_in_tolerance_range(getattr(quote, field), near_res, tolerance)
             for field in ["open", "close", "high", "low"]
         ]
         sell_signals_count += Counter(candlestick_on_res)[False]

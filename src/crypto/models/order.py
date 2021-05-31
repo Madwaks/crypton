@@ -21,6 +21,9 @@ class Order(Model):
     side = CharField(max_length=64, choices=Side.choices)
     quantity = FloatField(default=0.0)
 
+    def get_price(self):
+        return self.price
+
     def __str__(self):
         return f"{self.symbol} - {self.type}"
 

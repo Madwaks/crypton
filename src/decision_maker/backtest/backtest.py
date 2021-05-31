@@ -4,7 +4,7 @@ from typing import TypeVar
 
 from injector import singleton, inject
 
-from crypto.models import Symbol, Quote, Portfolio, Position
+from crypto.models import Symbol, Quote, Portfolio
 from crypto.models.order import MarketOrder, Order
 from crypto.utils.enums import Side
 from decision_maker.services.factories.strategy import StrategyFactory
@@ -26,7 +26,7 @@ class Backtester:
         quotes: list[Quote] = symbol.quotes.filter(time_unit=time_unit.value).order_by(
             "timestamp"
         )
-        portfolio = Portfolio(initial_solde=2000)
+        portfolio = Portfolio(solde=2000)
         for current_quote in quotes:
             if current_quote.open_date < datetime(year=2019, month=1, day=1):
                 continue
@@ -43,8 +43,10 @@ class Backtester:
                     symbol=symbol,
                     side=Side.BUY,
                 )
-                self._send_order(order, portfolio)
-            if (
+                self._send_market_order(order, portfolio)
+                self._send_stop_loss_order(order)
+                assert portfolio.available_titres_for_symbol(symbol) >= 500
+            elif (
                 signal == Side.SELL
                 and portfolio.available_titres_for_symbol(symbol) >= 500
             ):
@@ -60,8 +62,8 @@ class Backtester:
         breakpoint()
         portfolio.delete()
 
-    def _send_order(self, order: "OrderType", portfolio: Portfolio):
-        position = Position.from_order(
-            order=order, portfolio=portfolio, price=order.get_price()
-        )
-        position.save()
+    def _send_market_order(self, order: "OrderType", portfolio: Portfolio):
+        if order.side == Side.BUY:
+            portfolio.open_position(order)
+        elif order.side == Side.SELL:
+            portfolio.close_position(order)

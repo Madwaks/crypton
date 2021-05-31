@@ -1,9 +1,15 @@
+from typing import TypeVar, TYPE_CHECKING
+
 from django.db import models
 from django.db.models import UniqueConstraint
 
-from crypto.models import Portfolio
 from crypto.models.order import Order
 from crypto.utils.enums import Side
+
+if TYPE_CHECKING:
+    from crypto.models import Portfolio
+
+OrderType = TypeVar("OrderType", bound=Order)
 
 
 class Position(models.Model):
@@ -28,14 +34,15 @@ class Position(models.Model):
     )
 
     @classmethod
-    def from_order(cls, order: Order, portfolio: Portfolio, price: float):
+    def from_order(cls, order: "OrderType", portfolio: "Portfolio"):
+
         return cls(
             timestamp=order.timestamp,
             portfolio=portfolio,
             side=order.side,
             symbol=order.symbol,
             nb_titres=order.quantity,
-            pru=price,
+            pru=order.get_price(),
         )
 
     @property

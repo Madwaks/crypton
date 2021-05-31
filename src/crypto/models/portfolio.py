@@ -1,24 +1,27 @@
 from django.db import models
 
-from crypto.models import Symbol, Position
+from crypto.models import Symbol
+from crypto.utils.enums import Side
 
 
 class Portfolio(models.Model):
-    solde = models.FloatField()
+    initial_solde = models.FloatField()
 
-    def open_position(self, symbol: Symbol, timestamp: int, nb_titres: int, pru: float):
-        position = self.positions.create(
-            timestamp=timestamp,
-            symbol=symbol,
-            status="OPEN",
-            nb_titres=nb_titres,
-            pru=pru,
+    @property
+    def solde(self) -> float:
+        return (
+            self.initial_solde
+            - sum([pos.size for pos in self.buy_positions])
+            + sum([pos.size for pos in self.sell_positions])
         )
-        self._update_solde(-position.amount(pru))
 
-    def close_position(self, position: Position, price: float):
-        self.positions.status = "CLOSED"
-        self._update_solde(position.amount(price))
+    @property
+    def buy_positions(self):
+        return self.positions.filter(side=Side.BUY)
 
-    def _update_solde(self, value: float):
-        self.solde += value
+    @property
+    def sell_positions(self):
+        return self.positions.filter(side=Side.SELL)
+
+    def available_titres_for_symbol(self, symbol: Symbol):
+        return sum([pos.nb_titres for pos in self.buy_positions.filter(symbol=symbol)])

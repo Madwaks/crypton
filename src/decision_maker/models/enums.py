@@ -33,6 +33,13 @@ class Operator(TextChoices):
     EQ = "==", _("EQUAL")
     GTE = ">=", _("GREATER OR EQUAL")
 
+    @classmethod
+    def from_name(cls, code: str):
+        for c_type in cls:
+            if c_type.name == code:
+                return c_type
+        return None
+
 
 class LogicOp(TextChoices):
     AND = "AND", _("AND")
@@ -46,6 +53,7 @@ class AvailableIndicators(TextChoices):
     MM50 = "MM50", _("Moyenne mobile 50")
     MM100 = "MM100", _("Moyenne mobile 100")
     MM200 = "MM200", _("Moyenne mobile 200")
+    PRICE = "PRICE", _("Price")
 
     @classmethod
     def from_code(cls, code: str):

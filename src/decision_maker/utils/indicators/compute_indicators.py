@@ -3,12 +3,13 @@ from typing import List, NoReturn, Union
 
 from injector import singleton, inject
 from pandas import DataFrame
-from tqdm import tqdm
 
 from crypto.models import Symbol
 from decision_maker.models import Indicator, SymbolIndicator
+from decision_maker.models.quote_state import QuoteState
 from decision_maker.services.factories.indicators import DataFrameIndicatorFactory
 from decision_maker.services.factories.key_level import KeyLevelFactory
+from decision_maker.services.factories.quote_state import QuoteStateFactory
 from utils.enums import TimeUnits
 
 logger = getLogger("django")
@@ -21,13 +22,11 @@ class IndicatorComputer:
         self,
         indicators_factory: DataFrameIndicatorFactory,
         key_levels_factory: KeyLevelFactory,
+        distance_factory: QuoteStateFactory,
     ):
         self._indicators_factory = indicators_factory
         self._key_level_factory = key_levels_factory
-
-    def compute_indicators_for_all(self):
-        for symbol in tqdm(Symbol.objects.all()):
-            self._compute_indicators_for_symbol(symbol)
+        self._distance_factory = distance_factory
 
     def compute_indicators_for_symbol(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits
@@ -35,11 +34,23 @@ class IndicatorComputer:
         if isinstance(symbol, str):
             symbol = Symbol.objects.get(name=symbol)
 
+        self._compute_symbol_indicators(symbol, time_unit)
+
+        self._compute_quote_indicators(symbol, time_unit)
+
+        self._compute_distances_for_symbol(symbol)
+
+    def _compute_symbol_indicators(
+        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+    ) -> NoReturn:
         symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
             symbol, time_unit=time_unit
         )
         self._save_symbol_indicators(symbol_indicators)
 
+    def _compute_quote_indicators(
+        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+    ) -> NoReturn:
         quote_as_dataframe: DataFrame = symbol.quotes.get_as_dataframe(
             time_unit=time_unit
         )
@@ -50,6 +61,21 @@ class IndicatorComputer:
             self._save_indicators(indicators)
         else:
             logger.warning(f"No quotes saved for {symbol}. Run importquotes command.")
+
+    def _compute_distances_for_symbol(self, symbol: Symbol):
+        if isinstance(symbol, str):
+            symbol = Symbol.objects.get(name=symbol)
+
+        quote_states = self._distance_factory.build_states_from_quote(
+            symbol.quotes.all()
+        )
+        self.save_states(quote_states)
+
+    @staticmethod
+    def save_states(quote_list: list[QuoteState]):
+        QuoteState.objects.bulk_create(quote_list)
+
+        logger.info(f"[Distances] Stored {len(quote_list)} quote states")
 
     @staticmethod
     def _save_indicators(indicator_list: List[Indicator]) -> NoReturn:

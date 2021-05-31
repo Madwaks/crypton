@@ -86,4 +86,6 @@ class TestClient(BinanceClient):
 
     @inject
     def __init__(self, _config: Configuration):
-        super().__init__(api_key=_config.api_key, api_secret=_config.secret_key)
+        super().__init__(
+            api_key=_config.api_key, api_secret=_config.secret_key, testnet=True
+        )

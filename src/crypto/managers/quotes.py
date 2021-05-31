@@ -18,14 +18,16 @@ class QuoteManager(Manager):
     def get_previous_quote(self, quote: "Quote") -> "Quote":
         try:
             return self.get(pk=get_timestamp_diff_unit(quote=quote, diff_number=1))
-        except self.model.DoesNotExist as err:
-            raise err(f"{quote.open_date} is the first quote i got in my DB!")
+        except self.model.DoesNotExist:
+            logger.warning(f"{quote.open_date} is the last quote i got in my DB!")
+            return None
 
     def get_next_quote(self, quote: "Quote") -> "Quote":
         try:
             return self.get(pk=get_timestamp_diff_unit(quote=quote, diff_number=-1))
         except self.model.DoesNotExist:
             logger.warning(f"{quote.open_date} is the last quote i got in my DB!")
+            return None
 
     def get_as_dataframe(
         self, time_unit: TimeUnits, symbol: Optional["Symbol"] = None

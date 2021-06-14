@@ -7,7 +7,7 @@ from decision_maker.models import QuoteState
 from decision_maker.services.repositories.indicator import IndicatorStateRepository
 from decision_maker.utils.etc import is_in_tolerance_range
 
-tolerance = 0.005
+tolerance = 0.0005
 
 
 @singleton
@@ -21,9 +21,9 @@ class StrategyFactory:
         nb_buy_signals = self._get_buy_signals(quote)
         nb_sell_signals = self._get_sell_signals(quote)
 
-        if nb_sell_signals > 1.25 * nb_buy_signals:
+        if nb_sell_signals > 3 * nb_buy_signals:
             return Side.SELL
-        elif nb_buy_signals > 1.25 * nb_sell_signals:
+        elif nb_buy_signals > 3 * nb_sell_signals:
             return Side.BUY
         else:
             return None
@@ -31,8 +31,8 @@ class StrategyFactory:
     def _get_buy_signals(self, quote: Quote) -> int:
         quote_state: QuoteState = QuoteState.objects.get(quote=quote)
         buy_signals_count = 0
-        if quote_state.mean > 0:
-            buy_signals_count += 1
+        if quote_state.mean < 0:
+            return buy_signals_count
 
         near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(quote)
 
@@ -40,6 +40,7 @@ class StrategyFactory:
             is_in_tolerance_range(indicator.value, near_supp, tolerance)
             for indicator in quote.indicators.filter(name__startswith="MM")
         ]
+
         buy_signals_count += Counter(indicators_on_support)[True]
 
         candlestick_on_support = any(
@@ -56,8 +57,8 @@ class StrategyFactory:
     def _get_sell_signals(self, quote: Quote) -> int:
         quote_state: QuoteState = QuoteState.objects.get(quote=quote)
         sell_signals_count = 0
-        if quote_state.mean < 0:
-            sell_signals_count += 1
+        if quote_state.mean > 0:
+            return sell_signals_count
 
         near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(quote)
 

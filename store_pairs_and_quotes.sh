@@ -6,7 +6,8 @@ docker-compose -f docker/docker-compose.services.yml down -v && docker-compose -
 
 sleep 5
 
-python src/manage.py makemigrations
+python src/manage.py makemigrations crypto
+python src/manage.py makemigrations decision_maker
 
 python src/manage.py migrate
 

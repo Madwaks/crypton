@@ -36,9 +36,9 @@ class IndicatorComputer:
 
         self._compute_symbol_indicators(symbol, time_unit)
 
-        self._compute_quote_indicators(symbol, time_unit)
-
-        self._compute_distances_for_symbol(symbol)
+        # self._compute_quote_indicators(symbol, time_unit)
+        #
+        # self._compute_distances_for_symbol(symbol)
 
     def _compute_symbol_indicators(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits

@@ -26,7 +26,6 @@ class KeyLevelFactory:
 
         prices = self._get_price_counter(quotes)
         best_kmeans = self._find_best_kmeans(prices)
-
         key_levels = list(best_kmeans.cluster_centers_.flatten())
 
         return self._build_symbol_indicator_from_levels(
@@ -53,6 +52,7 @@ class KeyLevelFactory:
         counter_level = {
             price: counter for price, counter in counter_level.items() if counter >= 100
         }
+
         return list(counter_level.keys())
 
     def _get_rolling_min_max(
@@ -66,7 +66,7 @@ class KeyLevelFactory:
     @staticmethod
     def _find_best_kmeans(prices: list[float]) -> KMeans:
         kmeans_results: dict[float, KMeans] = dict()
-        for n_cluster in range(5, int(len(prices) + 1 / 2)):
+        for n_cluster in range(5, int((len(prices) + 1) / 2)):
             kmeans = KMeans(n_clusters=n_cluster)
             kmeans.fit(np.array(prices).reshape(-1, 1))
             kmeans_results[kmeans.inertia_] = kmeans

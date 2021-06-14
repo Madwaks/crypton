@@ -15,7 +15,6 @@ class Order(Model):
         related_name="orders",
         null=False,
         blank=False,
-        default="ETHBTC",
         on_delete=CASCADE,
     )
     side = CharField(max_length=64, choices=Side.choices)

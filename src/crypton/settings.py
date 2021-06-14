@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_plotly_dash.apps.DjangoPlotlyDashConfig",
-    "channels",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [

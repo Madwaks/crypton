@@ -27,6 +27,7 @@ class Backtester:
             "timestamp"
         )
         portfolio = Portfolio(solde=2000)
+        current_order = None
         for current_quote in quotes:
             if current_quote.open_date < datetime(year=2019, month=1, day=1):
                 continue
@@ -35,29 +36,26 @@ class Backtester:
             next_quote = Quote.objects.get_next_quote(current_quote)
             if next_quote is None:
                 continue
-            if signal == Side.BUY:
+            if signal == Side.BUY and current_order is None:
                 self._logger.info(f"Order BUY sent: {next_quote.open_date}")
                 order = MarketOrder(
-                    timestamp=next_quote.timestamp,
-                    quantity=500,
-                    symbol=symbol,
-                    side=Side.BUY,
+                    timestamp=next_quote.timestamp, symbol=symbol, side=Side.BUY
                 )
+                quantity = portfolio.get_nb_titres_to_buy(order.get_price())
+                order.quantity = quantity
+
                 self._send_market_order(order, portfolio)
-                self._send_stop_loss_order(order)
-                assert portfolio.available_titres_for_symbol(symbol) >= 500
-            elif (
-                signal == Side.SELL
-                and portfolio.available_titres_for_symbol(symbol) >= 500
-            ):
+                current_order = order
+            elif signal == Side.SELL and current_order is not None:
                 self._logger.info(f"Order SELL sent: {next_quote.open_date}")
                 order = MarketOrder(
                     timestamp=next_quote.timestamp,
-                    quantity=500,
+                    quantity=portfolio.available_titres_for_symbol(symbol),
                     symbol=symbol,
                     side=Side.SELL,
                 )
-                self._send_order(order, portfolio)
+                self._send_market_order(order, portfolio)
+                current_order = None
 
         breakpoint()
         portfolio.delete()

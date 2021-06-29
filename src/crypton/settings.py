@@ -29,7 +29,13 @@ SECRET_KEY = "yl@kmjp=qoz98^*-l458f8ukf50395#u(-5t&3)-=0on^l98tq"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["51.68.230.72", "hosoda.tradefox.tech", "tradefox.tech", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "51.68.230.72",
+    "hosoda.tradefox.tech",
+    "tradefox.tech",
+    "127.0.0.1",
+    "localhost",
+]
 
 INTERNAL_IPS = [
     # ...
@@ -41,11 +47,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Application definition
 # TODO: Find a way to uninstall some apps
-LOCAL_APPS = [
-    "crypto.apps.CryptoConfig",
-    "decision_maker.apps.DecisionMakerConfig",
-    "welcome_dash.apps.WelcomeDashConfig",
-]
+LOCAL_APPS = ["crypto.apps.CryptoConfig", "decision_maker.apps.DecisionMakerConfig"]
 
 INSTALLED_APPS = [
     *LOCAL_APPS,
@@ -209,4 +211,3 @@ PLOTLY_COMPONENTS = [
     "dash_bootstrap_components",
 ]
 CRISPY_TEPLATE_PACK = "bootstrap4"
-ASGI_APPLICATION = "welcome_dash.routing.application"

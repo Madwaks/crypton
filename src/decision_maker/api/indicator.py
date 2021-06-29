@@ -1,0 +1,19 @@
+from rest_framework.generics import ListAPIView
+
+from decision_maker.models import Indicator
+from decision_maker.serializers.indicator import IndicatorSerializer
+
+
+class IndicatorView(ListAPIView):
+    serializer_class = IndicatorSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        symbol = self.kwargs.get("symbol")
+        time_unit = self.kwargs.get("time_unit")
+        return Indicator.objects.filter(
+            quote__symbol__name=symbol, quote__time_unit=time_unit
+        )

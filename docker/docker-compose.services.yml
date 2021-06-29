@@ -15,18 +15,18 @@ services:
       - 'hargrove_preinit:/docker-entrypoint-preinitdb.d'
     networks:
       - trading-net
-  crypton-redis:
-    container_name: crypton-redis
-    image: bitnami/redis:4.0.14-debian-10-r30
-    command: /run.sh --maxmemory 250mb
-    ports:
-      - '6380:6380'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - 'redis_crypton_data:/bitnami/redis'
-    networks:
-      - trading-net
+#  crypton-redis:
+#    container_name: crypton-redis
+#    image: bitnami/redis:4.0.14-debian-10-r30
+#    command: /run.sh --maxmemory 250mb
+#    ports:
+#      - '6380:6380'
+#    environment:
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    volumes:
+#      - 'redis_crypton_data:/bitnami/redis'
+#    networks:
+#      - trading-net
 
 
 volumes:

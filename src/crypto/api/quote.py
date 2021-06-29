@@ -7,8 +7,11 @@ from crypto.serializers.quote import QuoteSerializer
 class QuoteSymbolView(ListAPIView):
     serializer_class = QuoteSerializer
 
-    def get(self, request, *args, **kwargs):
-        symbol = kwargs.get("symbol")
-        tu = kwargs.get("time_unit", "4h")
-        self.queryset = Quote.objects.filter(symbol__name=symbol, time_unit=tu)
-        return super(QuoteSymbolView, self).get(request, *args, **kwargs)
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        symbol = self.kwargs.get("symbol")
+        time_unit = self.kwargs.get("time_unit")
+        return Quote.objects.filter(symbol__name=symbol, time_unit=time_unit)

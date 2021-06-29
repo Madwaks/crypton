@@ -1,7 +1,7 @@
 POSTGRESQL_DATABASE=crypto
 POSTGRESQL_USERNAME=postgresql
 POSTGRESQL_PASSWORD=atporder
-POSTGRESQL_HOST=localhost
+POSTGRESQL_HOST=postgresql
 POSTGRESQL_PORT=5432
 
 DRIVER_PATH=src/data/utils/driver_manager/chromedriver

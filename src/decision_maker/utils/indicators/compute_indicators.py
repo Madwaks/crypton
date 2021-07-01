@@ -36,7 +36,7 @@ class IndicatorComputer:
 
         self._compute_symbol_indicators(symbol, time_unit)
 
-        self._compute_quote_indicators(symbol, time_unit)
+        # self._compute_quote_indicators(symbol, time_unit)
         #
         # self._compute_distances_for_symbol(symbol)
 

@@ -11,6 +11,3 @@ class KeyLevelView(ListAPIView):
         symbol = self.kwargs.get("symbol")
         time_unit = self.kwargs.get("time_unit")
         return SymbolIndicator.objects.filter(symbol__name=symbol, time_unit=time_unit)
-
-    def get(self, request, *args, **kwargs):
-        breakpoint()

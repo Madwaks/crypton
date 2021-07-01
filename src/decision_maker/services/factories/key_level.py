@@ -50,7 +50,7 @@ class KeyLevelFactory:
         counter_level.update(Counter(max_closes))
 
         counter_level = {
-            price: counter for price, counter in counter_level.items() if counter >= 100
+            price: counter for price, counter in counter_level.items() if counter >= 200
         }
 
         return list(counter_level.keys())

@@ -16,7 +16,7 @@ urlpatterns = [
         name="Indicators Symbol",
     ),
     re_path(
-        "key_level/(?P<symbol>.+)/(?P<time_unit>.+)/$",
+        "(?P<symbol>.+)/(?P<time_unit>.+)/$",
         KeyLevelView.as_view(),
         name="KeyLevel Symbol",
     ),

@@ -14,6 +14,7 @@ class IndicatorView(ListAPIView):
         """
         symbol = self.kwargs.get("symbol")
         time_unit = self.kwargs.get("time_unit")
+        indicator_name = self.kwargs.get("indicator_name")
         return Indicator.objects.filter(
-            quote__symbol__name=symbol, quote__time_unit=time_unit
+            name=indicator_name, quote__symbol__name=symbol, quote__time_unit=time_unit
         )

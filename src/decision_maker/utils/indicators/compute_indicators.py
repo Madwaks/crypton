@@ -46,7 +46,14 @@ class IndicatorComputer:
         symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
             symbol, time_unit=time_unit
         )
+        SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
+        assert (
+            len(SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit)) == 0
+        )
         self._save_symbol_indicators(symbol_indicators)
+        assert len(
+            SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit)
+        ) == len(symbol_indicators)
 
     def _compute_quote_indicators(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits
@@ -73,6 +80,7 @@ class IndicatorComputer:
 
     @staticmethod
     def save_states(quote_list: list[QuoteState]):
+
         try:
             QuoteState.objects.bulk_create(quote_list)
         except:

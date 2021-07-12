@@ -1,12 +1,15 @@
-from typing import TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
 from django.db import models
 
-from crypto.models import Symbol, Position
-from crypto.models.order import Order
+from crypto.models import Position
 from crypto.utils.enums import Side
 
-OrderType = TypeVar("OrderType", bound=Order)
+if TYPE_CHECKING:
+    from crypto.models import Symbol
+    from crypto.models.order import Order
+
+    OrderType = TypeVar("OrderType", bound=Order)
 
 
 class Portfolio(models.Model):
@@ -20,7 +23,7 @@ class Portfolio(models.Model):
     def sell_positions(self):
         return self.positions.filter(side=Side.SELL)
 
-    def available_titres_for_symbol(self, symbol: Symbol):
+    def available_titres_for_symbol(self, symbol: "Symbol"):
         bought = sum(
             [pos.nb_titres for pos in self.buy_positions.filter(symbol=symbol)]
         )

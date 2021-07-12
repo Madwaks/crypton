@@ -3,13 +3,13 @@ from typing import TypeVar, TYPE_CHECKING
 from django.db import models
 from django.db.models import UniqueConstraint
 
-from crypto.models.order import Order
 from crypto.utils.enums import Side
 
 if TYPE_CHECKING:
     from crypto.models import Portfolio
+    from crypto.models.order import Order
 
-OrderType = TypeVar("OrderType", bound=Order)
+    OrderType = TypeVar("OrderType", bound=Order)
 
 
 class Position(models.Model):
@@ -32,6 +32,9 @@ class Position(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
+
+    def __str__(self):
+        return f"{self.side} - {self.size}"
 
     @classmethod
     def from_order(cls, order: "OrderType", portfolio: "Portfolio"):

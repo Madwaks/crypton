@@ -1,9 +1,8 @@
-from collections import Counter
+from typing import Optional
 
 from injector import singleton, inject
 from crypto.models import Quote
 from crypto.utils.enums import Side
-from decision_maker.models import QuoteState
 from decision_maker.services.repositories.indicator import IndicatorStateRepository
 from decision_maker.utils.etc import is_in_tolerance_range
 
@@ -16,62 +15,38 @@ class StrategyFactory:
     def __init__(self, indicator_repository: IndicatorStateRepository):
         self._ind_state_repo = indicator_repository
 
-    def _get_decision_for_quote(self, quote: Quote):
-
-        nb_buy_signals = self._get_buy_signals(quote)
-        nb_sell_signals = self._get_sell_signals(quote)
-
-        if nb_sell_signals > 3 * nb_buy_signals:
-            return Side.SELL
-        elif nb_buy_signals > 3 * nb_sell_signals:
-            return Side.BUY
-        else:
-            return None
-
-    def _get_buy_signals(self, quote: Quote) -> int:
-        quote_state: QuoteState = QuoteState.objects.get(quote=quote)
-        buy_signals_count = 0
-        if quote_state.mean < 0:
-            return buy_signals_count
-
-        near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(quote)
-
-        indicators_on_support = [
-            is_in_tolerance_range(indicator.value, near_supp, tolerance)
-            for indicator in quote.indicators.filter(name__startswith="MM")
-        ]
-
-        buy_signals_count += Counter(indicators_on_support)[True]
-
-        candlestick_on_support = any(
-            [
-                is_in_tolerance_range(getattr(quote, field), near_supp, tolerance)
-                for field in ["open", "close", "high", "low"]
-            ]
+    def _get_decision_for_quote(
+        self, previous_quote: Quote, quote: Quote
+    ) -> Optional[Side]:
+        near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(
+            previous_quote
         )
-        if candlestick_on_support:
-            buy_signals_count += 1
-
-        return buy_signals_count
-
-    def _get_sell_signals(self, quote: Quote) -> int:
-        quote_state: QuoteState = QuoteState.objects.get(quote=quote)
-        sell_signals_count = 0
-        if quote_state.mean > 0:
-            return sell_signals_count
-
-        near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(quote)
-
-        indicators_on_support = [
-            is_in_tolerance_range(indicator.value, near_res, tolerance)
-            for indicator in quote.indicators.filter(name__startswith="MM")
-        ]
-        sell_signals_count += Counter(indicators_on_support)[False]
-
-        candlestick_on_res = [
-            is_in_tolerance_range(getattr(quote, field), near_res, tolerance)
-            for field in ["open", "close", "high", "low"]
-        ]
-        sell_signals_count += Counter(candlestick_on_res)[False]
-
-        return sell_signals_count
+        previous_mm7 = previous_quote.indicators.get(name="MM7").value
+        mm7 = quote.indicators.get(name="MM7").value
+        if (
+            any(
+                [
+                    is_in_tolerance_range(candle, near_supp)
+                    for candle in [
+                        previous_quote.close,
+                        previous_quote.open,
+                        previous_quote.high,
+                        previous_quote.low,
+                    ]
+                ]
+            )
+            and previous_mm7 < mm7
+        ):
+            return Side.BUY
+        elif any(
+            [
+                is_in_tolerance_range(candle, near_res)
+                for candle in [
+                    previous_quote.close,
+                    previous_quote.open,
+                    previous_quote.high,
+                    previous_quote.low,
+                ]
+            ]
+        ):
+            return Side.SELL

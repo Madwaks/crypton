@@ -1,7 +1,6 @@
-from datetime import datetime
 from logging import getLogger
 from typing import TypeVar
-
+import more_itertools
 from injector import singleton, inject
 
 from crypto.models import Symbol, Quote, Portfolio
@@ -26,14 +25,13 @@ class Backtester:
         quotes: list[Quote] = symbol.quotes.filter(time_unit=time_unit.value).order_by(
             "timestamp"
         )
+        windowed_queryset = list(more_itertools.windowed(quotes, n=3))
         portfolio = Portfolio(solde=2000)
         current_order = None
-        for current_quote in quotes:
-            if current_quote.open_date < datetime(year=2019, month=1, day=1):
-                continue
-
-            signal = self._strat_factory._get_decision_for_quote(current_quote)
-            next_quote = Quote.objects.get_next_quote(current_quote)
+        for previous_quote, current_quote, next_quote in windowed_queryset[10:]:
+            signal = self._strat_factory._get_decision_for_quote(
+                previous_quote, current_quote
+            )
             if next_quote is None:
                 continue
             if signal == Side.BUY and current_order is None:

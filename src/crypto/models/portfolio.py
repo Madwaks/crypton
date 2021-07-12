@@ -34,7 +34,7 @@ class Portfolio(models.Model):
         return position
 
     def get_nb_titres_to_buy(self, price: float):
-        return (0.05 * self.solde) / price
+        return (0.20 * self.solde) / price
 
     def update_solde(self, value: float):
         setattr(self, "solde", self.solde + value)

@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
     "rest_framework",
     "django_filters",
 ]
@@ -167,47 +166,3 @@ STATICFILES_DIRS = [BASE_DIR / "crypton" / "static"]
 # DATA PATHS
 
 CRYPTO_FOLDER_PATH: Path = Path("data/")
-
-# DASH SETTINGS
-X_FRAME_OPTIONS = "SAMEORIGIN"
-
-PLOTLY_DASH = {
-    # Route used for the message pipe websocket connection
-    "ws_route": "dpd/ws/channel",
-    # Route used for direct http insertion of pipe messages
-    "http_route": "dpd/views",
-    # Flag controlling existince of http poke endpoint
-    "http_poke_enabled": True,
-    # Insert data for the demo when migrating
-    "insert_demo_migrations": False,
-    # Timeout for caching of initial arguments in seconds
-    "cache_timeout_initial_arguments": 60,
-    # Name of view wrapping function
-    "view_decorator": None,
-    # Flag to control location of initial argument storage
-    "cache_arguments": True,
-    # Flag controlling local serving of assets
-    "serve_locally": False,
-}
-
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "django_plotly_dash.finders.DashAssetFinder",
-    "django_plotly_dash.finders.DashComponentFinder",
-    "django_plotly_dash.finders.DashAppDirectoryFinder",
-]
-
-PLOTLY_COMPONENTS = [
-    # Common components
-    "dash_core_components",
-    "dash_html_components",
-    "dash_renderer",
-    # django-plotly-dash components
-    "dpd_components",
-    # static support if serving local assets
-    "dpd_static_support",
-    # Other components, as needed
-    "dash_bootstrap_components",
-]
-CRISPY_TEPLATE_PACK = "bootstrap4"

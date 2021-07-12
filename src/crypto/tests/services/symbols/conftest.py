@@ -4,8 +4,8 @@ from typing import NoReturn, Any
 
 import pytest
 
-from crypto.services.importers.symbol import SymbolImporter
 from crypto.services.factories.symbol import SymbolFactory
+from crypto.services.importers.symbol import SymbolImporter
 from utils.service_provider import provide
 
 

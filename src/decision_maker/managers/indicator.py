@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from django.db.models import Manager
 
-
 if TYPE_CHECKING:
     from crypto.models import Symbol
 

@@ -1,5 +1,6 @@
-from injector import singleton, inject
 import numpy as np
+from injector import singleton, inject
+
 from crypto.models import Quote
 from decision_maker.models import Indicator
 from decision_maker.models.enums import AvailableIndicators

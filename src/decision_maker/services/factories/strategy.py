@@ -1,6 +1,7 @@
 from typing import Optional
 
 from injector import singleton, inject
+
 from crypto.models import Quote
 from crypto.utils.enums import Side
 from decision_maker.services.repositories.indicator import IndicatorStateRepository

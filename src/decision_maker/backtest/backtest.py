@@ -1,5 +1,6 @@
 from logging import getLogger
 from typing import TypeVar
+
 import more_itertools
 from injector import singleton, inject
 

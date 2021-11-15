@@ -47,7 +47,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Application definition
 # TODO: Find a way to uninstall some apps
-LOCAL_APPS = ["crypto.apps.CryptoConfig", "decision_maker.apps.DecisionMakerConfig"]
+LOCAL_APPS = [
+    "crypto.apps.CryptoConfig",
+    "decision_maker.apps.DecisionMakerConfig",
+    "viz.apps.VizConfig",
+    "demo",
+]
 
 INSTALLED_APPS = [
     *LOCAL_APPS,
@@ -59,6 +64,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
+    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
+    "dpd_static_support",
+    "bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -71,15 +79,22 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_plotly_dash.middleware.BaseMiddleware",
     "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "crypton.urls"
 
 TRADINGBOARD_TEMPLATES = os.path.join(BASE_DIR, "trading_board/templates")
+VIZ_TEMPLATES = os.path.join(BASE_DIR, "viz/templates")
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [TEMPLATE_DIR, TRADINGBOARD_TEMPLATES],
+        "DIRS": [
+            os.path.join(BASE_DIR, "demo", "templates"),
+            TEMPLATE_DIR,
+            TRADINGBOARD_TEMPLATES,
+            VIZ_TEMPLATES,
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -166,3 +181,5 @@ STATICFILES_DIRS = [BASE_DIR / "crypton" / "static"]
 # DATA PATHS
 
 CRYPTO_FOLDER_PATH: Path = Path("data/")
+
+X_FRAME_OPTIONS = "SAMEORIGIN"

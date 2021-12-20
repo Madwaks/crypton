@@ -23,7 +23,7 @@ urlpatterns = [
     path("core/", include("crypto.urls")),
     path("indicators/", include("decision_maker.urls")),
     path("django_plotly_dash/", include("django_plotly_dash.urls")),
-    path("viz/", include("demo.urls")),
+    path("viz/", include("viz.urls")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

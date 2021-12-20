@@ -50,7 +50,7 @@ class QuotesPairImporter:
         client = docker.from_env()
         host_directory = Path("data/").absolute()
         client.containers.run(
-            image="madwaks/crypto-downloader:1.2",
+            image="madwaks/crypto-downloader:latest",
             command=f"importquotes --time-unit={time_unit} --symbol={symbol}",
             volumes={host_directory: {"bind": "/data", "mode": "rw"}},
             remove=True,

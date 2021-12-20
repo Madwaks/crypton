@@ -38,7 +38,7 @@ class SymbolImporter:
         client = docker.from_env()
         host_directory = Path("data/").absolute()
         client.containers.run(
-            image="madwaks/crypto-downloader:1.2",
+            image="madwaks/crypto-downloader:latest",
             command="importsymbols",
             volumes={host_directory: {"bind": "/data", "mode": "rw"}},
             remove=True,

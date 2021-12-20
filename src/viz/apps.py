@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DemoConfig(AppConfig):
+class VizConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "demo"
+    name = "viz"

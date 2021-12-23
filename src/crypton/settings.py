@@ -51,7 +51,6 @@ LOCAL_APPS = [
     "crypto.apps.CryptoConfig",
     "decision_maker.apps.DecisionMakerConfig",
     "viz.apps.VizConfig",
-    "demo",
 ]
 
 INSTALLED_APPS = [

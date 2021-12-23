@@ -38,27 +38,27 @@ class Backtester:
                 continue
             if signal == Side.BUY and current_position is None:
                 current_position = self._send_buy_order(next_quote)
-            elif current_position is not None and (
-                signal == Side.SELL
-                or min(
-                    [
-                        current_quote.open,
-                        current_quote.low,
-                        current_quote.high,
-                        current_quote.close,
-                    ]
+                self._logger.info(
+                    f"Order BUY sent: {next_quote.open_date} at {current_position.pru}"
                 )
-                < (
-                    current_position.pru
-                    - current_position.pru * self._stop_loss_percent
+            elif current_position is not None and (signal == Side.SELL):
+                position = self._send_sell_order(next_quote)
+                self._logger.info(
+                    f"Order SELL sent: {next_quote.open_date} at {position.pru}"
                 )
+                current_position = None
+            elif current_position is not None and self._is_stop_loss(
+                next_quote, current_position
             ):
-                self._send_sell_order(next_quote)
+                position = self._send_sell_order(next_quote)
+                self._logger.info(
+                    f"Order SELL sent: {next_quote.open_date} STOP LOSS at {position.pru}"
+                )
+
                 current_position = None
         print(self._portfolio.solde)
 
     def _send_buy_order(self, quote: Quote) -> "Position":
-        self._logger.info(f"Order BUY sent: {quote.open_date}")
         order = MarketOrder(
             timestamp=quote.timestamp, symbol=quote.symbol, side=Side.BUY
         )
@@ -68,13 +68,13 @@ class Backtester:
         return self._send_market_order(order, self._portfolio)
 
     def _send_sell_order(self, quote: Quote) -> "Position":
-        self._logger.info(f"Order SELL sent: {quote.open_date}")
         order = MarketOrder(
             timestamp=quote.timestamp,
             quantity=self._portfolio.available_titres_for_symbol(quote.symbol),
             symbol=quote.symbol,
             side=Side.SELL,
         )
+
         return self._send_market_order(order, self._portfolio)
 
     def _send_market_order(self, order: "OrderType", portfolio: Portfolio) -> Position:
@@ -82,3 +82,8 @@ class Backtester:
             return portfolio.open_position(order)
         elif order.side == Side.SELL:
             return portfolio.close_position(order)
+
+    def _is_stop_loss(self, quote: Quote, position: Position):
+        return min([quote.open, quote.low, quote.high, quote.close]) < (
+            position.pru - position.pru * self._stop_loss_percent
+        )

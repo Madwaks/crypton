@@ -22,32 +22,15 @@ class StrategyFactory:
         near_res, near_supp = self._ind_state_repo.find_nearest_supp_and_res(
             previous_quote
         )
-        previous_mm7 = previous_quote.indicators.get(name="MM7").value
-        mm7 = quote.indicators.get(name="MM7").value
-        if (
-            any(
-                [
-                    is_in_tolerance_range(candle, near_supp)
-                    for candle in [
-                        previous_quote.close,
-                        previous_quote.open,
-                        previous_quote.high,
-                        previous_quote.low,
-                    ]
-                ]
-            )
-            and previous_mm7 < mm7
-        ):
+        if self._candle_near_key_level(quote, near_supp):
             return Side.BUY
-        elif any(
-            [
-                is_in_tolerance_range(candle, near_res)
-                for candle in [
-                    previous_quote.close,
-                    previous_quote.open,
-                    previous_quote.high,
-                    previous_quote.low,
-                ]
-            ]
-        ):
+        elif self._candle_near_key_level(quote, near_res):
             return Side.SELL
+
+    def _candle_near_key_level(self, quote: Quote, key_level: float) -> bool:
+        return any(
+            [
+                is_in_tolerance_range(candle, key_level)
+                for candle in [quote.close, quote.open, quote.high, quote.low]
+            ]
+        )

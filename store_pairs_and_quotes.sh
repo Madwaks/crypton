@@ -2,9 +2,9 @@
 
 set -e
 
-docker-compose -f docker/docker-compose.services.yml down -v && docker-compose -f docker/docker-compose.services.yml up -d
+docker-compose -f docker/docker-compose.services.yml up -d
 
-sleep 5
+sleep 3
 
 python src/manage.py makemigrations crypto
 python src/manage.py makemigrations decision_maker

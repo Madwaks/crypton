@@ -1,0 +1,18 @@
+FROM python:3.9.5-buster
+
+
+RUN apt-get update
+
+RUN mkdir -p /app/requirements
+
+WORKDIR /app
+
+COPY requirements/ /app/requirements/.
+
+RUN pip install --no-cache-dir -U pip setuptools \
+ && pip install --no-cache-dir -r requirements/base.txt
+
+EXPOSE 3050
+
+ENTRYPOINT ["python"]
+CMD []

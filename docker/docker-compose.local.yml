@@ -1,0 +1,50 @@
+version: '3.5'
+
+services:
+  postgresql:
+    container_name: hargrove
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    env_file:
+      - ../docker_env
+    volumes:
+      - 'hargrove_data:/postgresql'
+      - 'hargrove_conf:/postgresql/conf'
+      - 'hargrove_init:/docker-entrypoint-initdb.d'
+      - 'hargrove_preinit:/docker-entrypoint-preinitdb.d'
+    networks:
+      - trading-net
+#  crypton-redis:
+#    container_name: crypton-redis
+#    image: bitnami/redis:4.0.14-debian-10-r30
+#    command: /run.sh --maxmemory 250mb
+#    ports:
+#      - '6380:6380'
+#    environment:
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    volumes:
+#      - 'redis_crypton_data:/bitnami/redis'
+#    networks:
+#      - trading-net
+
+
+volumes:
+  hargrove_data:
+    name: hargrove_data
+    driver: local
+  hargrove_conf:
+    name: hargrove_conf
+    driver: local
+  hargrove_init:
+    name: hargrove_init
+    driver: local
+  hargrove_preinit:
+    name: hargrove_preinit
+    driver: local
+  redis_crypton_data:
+    driver: local
+
+networks:
+  trading-net:
+    name: trading_network

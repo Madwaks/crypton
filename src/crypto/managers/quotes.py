@@ -39,8 +39,6 @@ class QuoteManager(Manager):
 
         return DataFrame(list(self.filter(time_unit=time_unit).values()))
 
-    def get_last_company_quote(self, symbol: "Symbol") -> "QuerySet":
-        return self.filter(symbol=symbol).latest("date")
+    def get_last_pair_quote(self, symbol: "Symbol") -> "Quote":
 
-    def get_last_pair_quote(self, symbol: "Symbol"):
-        return self.filter(pair=symbol).latest("timestamp")
+        return self.filter(symbol=symbol).latest("timestamp")

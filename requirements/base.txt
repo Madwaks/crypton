@@ -1,5 +1,6 @@
 numpy
 django==3.2
+docker==5.0.3
 django-rest-swagger
 djangorestframework==3.11.1
 drf-yasg
@@ -18,3 +19,4 @@ python-binance==0.7.11
 django-filter==2.4.0
 more-itertools==8.8.0
 django-bootstrap4==21.1
+sklearn

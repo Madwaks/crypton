@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from django.conf.global_settings import CACHES
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 
@@ -50,7 +52,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 LOCAL_APPS = [
     "crypto.apps.CryptoConfig",
     "decision_maker.apps.DecisionMakerConfig",
-    "viz.apps.VizConfig",
+    #"viz.apps.VizConfig",
 ]
 
 INSTALLED_APPS = [
@@ -63,9 +65,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
-    "django_plotly_dash.apps.DjangoPlotlyDashConfig",
-    "dpd_static_support",
-    "bootstrap4",
+    #"django_plotly_dash.apps.DjangoPlotlyDashConfig",
+    #"dpd_static_support",
+    #"bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -76,8 +78,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_plotly_dash.middleware.BaseMiddleware",
-    "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
+    # "django_plotly_dash.middleware.BaseMiddleware",
+    # "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -138,6 +140,12 @@ DATABASES = {
     }
 }
 
+
+CACHALOT_ENABLED = os.getenv("HEAVY_CACHE_ENABLED", "false").lower() == "true"
+CACHALOT_CACHE = "unique_snowflake" if "unique_snowflake" in CACHES else "default"
+LRU_CACHE = "unique_snowflake" if CACHALOT_ENABLED and "unique_snowflake" in CACHES else "default"
+if os.getenv("LRU_CACHE_CONFIG", ""):
+    LRU_CACHE = os.getenv("LRU_CACHE_CONFIG")
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

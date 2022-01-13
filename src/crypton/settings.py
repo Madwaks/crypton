@@ -52,7 +52,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 LOCAL_APPS = [
     "crypto.apps.CryptoConfig",
     "decision_maker.apps.DecisionMakerConfig",
-    #"viz.apps.VizConfig",
+    # "viz.apps.VizConfig",
 ]
 
 INSTALLED_APPS = [
@@ -65,9 +65,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "django_filters",
-    #"django_plotly_dash.apps.DjangoPlotlyDashConfig",
-    #"dpd_static_support",
-    #"bootstrap4",
+    # "django_plotly_dash.apps.DjangoPlotlyDashConfig",
+    # "dpd_static_support",
+    # "bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -143,7 +143,11 @@ DATABASES = {
 
 CACHALOT_ENABLED = os.getenv("HEAVY_CACHE_ENABLED", "false").lower() == "true"
 CACHALOT_CACHE = "unique_snowflake" if "unique_snowflake" in CACHES else "default"
-LRU_CACHE = "unique_snowflake" if CACHALOT_ENABLED and "unique_snowflake" in CACHES else "default"
+LRU_CACHE = (
+    "unique_snowflake"
+    if CACHALOT_ENABLED and "unique_snowflake" in CACHES
+    else "default"
+)
 if os.getenv("LRU_CACHE_CONFIG", ""):
     LRU_CACHE = os.getenv("LRU_CACHE_CONFIG")
 

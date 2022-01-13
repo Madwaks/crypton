@@ -29,6 +29,6 @@ def symbol_repository_config(symbol_json_path: Path) -> SymbolRepository.Configu
 
 @pytest.fixture(scope="module")
 def symbol_repository(
-    symbol_repository_config: SymbolRepository.Configuration
+    symbol_repository_config: SymbolRepository.Configuration,
 ) -> SymbolRepository:
     return build(SymbolRepository, config=symbol_repository_config)

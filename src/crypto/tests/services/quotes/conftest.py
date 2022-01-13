@@ -56,6 +56,6 @@ def quote_repo_config(
 
 @pytest.fixture(scope="module")
 def quote_repository(
-    quote_repo_config: QuotesPairRepository.Configuration
+    quote_repo_config: QuotesPairRepository.Configuration,
 ) -> QuotesPairRepository:
     return build(QuotesPairRepository, config=quote_repo_config)

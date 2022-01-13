@@ -13,7 +13,6 @@ from utils.decorators import class_property
 logger: Logger = getLogger("django")
 
 
-
 class AbstractModel(models.Model):
     # Cache internals
     _cache_key_suffixes = tuple()
@@ -27,10 +26,13 @@ class AbstractModel(models.Model):
     @class_property
     def class_name_as_lowercase(cls) -> str:
         return cls.__name__.lower()
-    
+
     @property
     def cache_keys(self):
-        return (f"{self.cache_key}.{suffix}" for suffix in self.__class__._cache_key_suffixes)
+        return (
+            f"{self.cache_key}.{suffix}"
+            for suffix in self.__class__._cache_key_suffixes
+        )
 
     def save(self, *args, validation: bool = True, **kwargs):
         if validation:
@@ -59,7 +61,9 @@ class AbstractModel(models.Model):
     @classmethod
     def del_cache_key(cls, key):
         if key in cls._cache_key_suffixes:
-            cls._cache_key_suffixes = tuple([okey for okey in cls._cache_key_suffixes if okey != key])
+            cls._cache_key_suffixes = tuple(
+                [okey for okey in cls._cache_key_suffixes if okey != key]
+            )
 
     @property
     def cache_key(self) -> str:

@@ -75,7 +75,6 @@ class Symbol(AbstractModel):
         key_levels = np.array(self.indicators.values_list("value", flat=True))
         return key_levels, key_levels - self.last_close
 
-
     class Meta:
         verbose_name = "Symbol"
         verbose_name_plural = "Symbols"

@@ -6,9 +6,11 @@ from django.core.cache import caches
 from django.db.models import Model
 from django.utils.version import PY36
 
+
 class class_property(property):
     def __get__(self, obj: Any, objtype: Optional[Type[Any]] = None) -> Any:
         return super().__get__(objtype)
+
 
 class cached_property:  # pragma: no-cover
     """
@@ -20,7 +22,9 @@ class cached_property:  # pragma: no-cover
 
     @staticmethod
     def func(instance: "Model") -> NoReturn:
-        raise TypeError("Cannot use cached_property instance without calling __set_name__() on it.")
+        raise TypeError(
+            "Cannot use cached_property instance without calling __set_name__() on it."
+        )
 
     @staticmethod
     def _is_mangled(name: str) -> bool:

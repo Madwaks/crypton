@@ -1,12 +1,10 @@
-from abc import abstractmethod
 from logging import Logger, getLogger
-from typing import Iterator, List
+from logging import Logger, getLogger
+from typing import List
 
 from django.conf import settings
 from django.core.cache import caches
 from django.db import models
-from django.db.models import ManyToManyRel
-from django.urls import reverse
 
 from utils.decorators import class_property
 

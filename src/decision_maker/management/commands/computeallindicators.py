@@ -4,8 +4,6 @@ import sys
 from django.core.management import BaseCommand
 from tqdm import tqdm
 
-from crypto.models import Symbol
-
 
 class Command(BaseCommand):
     help = "Loads initial companies into DB"
@@ -29,5 +27,7 @@ class Command(BaseCommand):
         tu = TimeUnits.from_code(options["time_unit"])
 
         computer = provide(IndicatorComputer)
-        for symbol in tqdm(Symbol.objects.all()):
+        from crypto.utils.most_traded_coins import MOST_TRADED_COINS
+
+        for symbol in tqdm(MOST_TRADED_COINS):
             computer.compute_indicators_for_symbol(symbol=symbol, time_unit=tu)

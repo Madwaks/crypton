@@ -53,7 +53,6 @@ class AvailableIndicators(TextChoices):
     MM50 = "MM50", _("Moyenne mobile 50")
     MM100 = "MM100", _("Moyenne mobile 100")
     MM200 = "MM200", _("Moyenne mobile 200")
-    PRICE = "PRICE", _("Price")
 
     @classmethod
     def from_code(cls, code: str):

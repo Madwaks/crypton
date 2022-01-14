@@ -23,7 +23,6 @@ class Command(BaseCommand):
         from utils.service_provider import provide
         from utils.enums import TimeUnits
 
-        pair: str = options["symbol"]
         tu = TimeUnits.from_code(options["time_unit"])
 
         from decision_maker.backtest.backtest import Backtester

@@ -3,24 +3,20 @@ from datetime import datetime
 from django.db.models import (
     Model,
     FloatField,
-    ForeignKey,
     SET_NULL,
-    CharField,
     UniqueConstraint,
     OneToOneField,
 )
 
-from crypto.managers.quotes import QuoteManager
 from crypto.models import Quote
-from utils.enums import TimeUnits
 
 
 class Distance(Model):
-    mm7 = FloatField(max_length=128, verbose_name="mm7", null=True)
-    mm20 = FloatField(max_length=128, verbose_name="mm20", null=True)
-    mm50 = FloatField(max_length=128, verbose_name="mm50", null=True)
-    mm100 = FloatField(max_length=128, verbose_name="mm100", null=True)
-    mm200 = FloatField(max_length=128, verbose_name="mm200", null=True)
+    MM7 = FloatField(max_length=128, verbose_name="mm7", null=True)
+    MM20 = FloatField(max_length=128, verbose_name="mm20", null=True)
+    MM50 = FloatField(max_length=128, verbose_name="mm50", null=True)
+    MM100 = FloatField(max_length=128, verbose_name="mm100", null=True)
+    MM200 = FloatField(max_length=128, verbose_name="mm200", null=True)
     support = FloatField(max_length=128, verbose_name="support")
     resistance = FloatField(max_length=128, verbose_name="resistance")
     quote: Quote = OneToOneField(

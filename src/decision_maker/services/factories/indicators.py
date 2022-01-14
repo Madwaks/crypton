@@ -3,7 +3,6 @@ from typing import List
 
 from injector import singleton
 from pandas import DataFrame, Series
-from tqdm import tqdm
 
 from crypto.models import Quote, Symbol
 from decision_maker.models import Indicator

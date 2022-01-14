@@ -1,23 +1,23 @@
 from django.contrib.admin import ModelAdmin
 from django.db.models import QuerySet, F
 
-from crypto.models import Quote, Symbol
+from crypto.models import Symbol
 
 
 class DistanceAdmin(ModelAdmin):
     list_display = (
         "quote",
-        "abs_mm7",
-        "mm20",
-        "mm50",
-        "mm100",
-        "mm200",
+        "MM7",
+        "MM20",
+        "MM50",
+        "MM100",
+        "MM200",
         "support",
         "resistance",
     )
 
     def get_queryset(self, request):
-        qs = super(DistanceAdmin, self).get_queryset(request)
+        qs = super(DistanceAdmin, self).get_queryset(request).prefetch_related("quote")
         filtered_qs: QuerySet = qs.filter(
             quote__in=[
                 symbol.last_quote
@@ -25,7 +25,7 @@ class DistanceAdmin(ModelAdmin):
                 if symbol.last_quote
             ]
         )
-        annotated_qs = filtered_qs.annotate(abs_mm7=abs(F("mm7")))
+        return filtered_qs
 
     def get_ordering(self, request):
         pass
@@ -35,7 +35,7 @@ class DistanceAdmin(ModelAdmin):
     #     qs = qs.annotate(ratio=F('hits') * 100 / F('all'))
     #     return qs
 
-    def get_ratio(self, obj):
+    def get_abs_mm7(self, obj):
         return obj.abs_mm7
 
-    get_ratio.admin_order_field = "abs_mm7"
+    get_abs_mm7.admin_order_field = "abs_mm7"

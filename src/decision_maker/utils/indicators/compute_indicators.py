@@ -9,6 +9,7 @@ from tqdm import tqdm
 from crypto.models import Symbol, Quote
 from decision_maker.models import Indicator, SymbolIndicator
 from decision_maker.models.distance import Distance
+from decision_maker.models.enums import AvailableIndicators
 from decision_maker.models.quote_state import QuoteState
 from decision_maker.services.factories.indicators import DataFrameIndicatorFactory
 from decision_maker.services.factories.key_level import KeyLevelFactory
@@ -35,48 +36,49 @@ class IndicatorComputer:
         self, symbol: Union[str, Symbol], time_unit: TimeUnits
     ) -> NoReturn:
         if isinstance(symbol, str):
-            symbol = Symbol.objects.get(name=symbol)
+            try:
+                symbol = Symbol.objects.get(name=symbol)
+            except:
+                return
+        breakpoint()
         quotes_for_symbol_and_tu = symbol.quotes.get_symbol_and_tu_quotes(
             time_unit=time_unit
         )
-        quotes_for_symbol_and_tu
-        self._compute_symbol_indicators(symbol, time_unit, quotes_for_symbol_and_tu)
-        #
-        self._compute_quote_indicators(symbol, quotes_for_symbol_and_tu)
+        if not symbol.indicators.exists():
+            self._compute_symbol_indicators(symbol, time_unit, quotes_for_symbol_and_tu)
 
-        self._compute_quote_to_ind_distances(quotes_for_symbol_and_tu)
+        quotes_with_missing_indicators = quotes_for_symbol_and_tu.filter(
+            indicators=None
+        )
+
+        self._compute_quote_indicators(symbol, quotes_with_missing_indicators)
+
+        self._compute_quote_to_ind_distances(quotes_with_missing_indicators)
 
         # self._compute_distances_for_symbol(symbol)
 
-    def _compute_quote_to_ind_distances(
-        self, quotes_for_symbol_and_tu: QuerySet[Quote]
-    ) -> NoReturn:
+    def _compute_quote_to_ind_distances(self, quotes: QuerySet[Quote]) -> NoReturn:
         distances = []
-        for quote in tqdm(quotes_for_symbol_and_tu.prefetch_related("indicators")):
+        available_indicators = AvailableIndicators.values
+        qs = quotes.filter(distances=None).prefetch_related("indicators")
+        for quote in tqdm(quotes.prefetch_related("indicators")):
+            distance = Distance(quote=quote)
             res, supp = quote.nearest_key_level
 
-            mm7 = quote.indicators.get(name="MM7")
-            mm20 = quote.indicators.get(name="MM20")
-            mm50 = quote.indicators.get(name="MM50")
-            mm100 = quote.indicators.get(name="MM100")
-            mm200 = quote.indicators.get(name="MM200")
+            for indicator_name in available_indicators:
+                mm = quote.indicators.get(name=indicator_name.upper())
+                if mm.value != 0:
+                    setattr(
+                        distance,
+                        indicator_name.upper(),
+                        (mm.value - quote.close) / quote.close,
+                    )
 
-            distance = Distance()
-
-            if mm7.value != 0:
-                distance.mm7 = (mm7.value - quote.close) / quote.close
-            if mm20.value != 0:
-                distance.mm20 = (mm20.value - quote.close) / quote.close
-            if mm50.value != 0:
-                distance.mm50 = (mm50.value - quote.close) / quote.close
-            if mm100.value != 0:
-                distance.mm100 = (mm100.value - quote.close) / quote.close
-            if mm200.value != 0:
-                distance.mm200 = (mm200.value - quote.close) / quote.close
             distance.support = (supp - quote.close) / quote.close
             distance.resistance = (res - quote.close) / quote.close
-            distance.quote = quote
+
             distances.append(distance)
+
         Distance.objects.bulk_create(distances)
 
     def _compute_symbol_indicators(
@@ -93,18 +95,14 @@ class IndicatorComputer:
         self._save_symbol_indicators(symbol_indicators)
 
     def _compute_quote_indicators(
-        self, symbol: Union[str, Symbol], quotes_for_symbol_and_tu: QuerySet[Quote]
+        self, symbol: Union[str, Symbol], quotes: QuerySet[Quote]
     ) -> NoReturn:
-        quote_as_dataframe: DataFrame = DataFrame(
-            list(quotes_for_symbol_and_tu.values())
-        )
-        if not quote_as_dataframe.empty:
+        dataframe: DataFrame = DataFrame(list(quotes.values()))
+        if not dataframe.empty:
             indicators = self._indicators_factory.build_indicators_from_dataframe(
-                quote_as_dataframe, symbol
+                dataframe, symbol
             )
             self._save_indicators(indicators)
-        else:
-            logger.warning(f"No quotes saved for {symbol}. Run importquotes command.")
 
     def _compute_distances_for_symbol(self, symbol: Symbol):
         if isinstance(symbol, str):

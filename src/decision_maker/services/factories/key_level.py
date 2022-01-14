@@ -31,14 +31,16 @@ class KeyLevelFactory:
         higher_res = quotes[["open", "high", "low", "close"]].max().max()
         lower_supp = quotes[["open", "high", "low", "close"]].min().min()
         prices = self._get_price_counter(quotes)
-        best_kmeans = self._find_best_kmeans(prices)
-        key_levels = list(best_kmeans.cluster_centers_.flatten())
+        if prices:
+            best_kmeans = self._find_best_kmeans(prices)
+            key_levels = list(best_kmeans.cluster_centers_.flatten())
 
-        key_levels += [higher_res, lower_supp]
+            key_levels += [higher_res, lower_supp]
 
-        return self._build_symbol_indicator_from_levels(
-            symbol=symbol, time_unit=time_unit, key_levels=key_levels
-        )
+            return self._build_symbol_indicator_from_levels(
+                symbol=symbol, time_unit=time_unit, key_levels=key_levels
+            )
+        return []
 
     def _get_price_counter(self, quotes: DataFrame) -> list[float]:
         counter_level = Counter()
@@ -83,7 +85,10 @@ class KeyLevelFactory:
             labels = kmeans.fit_predict(array)
             silhouette = silhouette_score(array, labels)
             kmeans_results[silhouette] = kmeans
-        return kmeans_results[max(kmeans_results)]
+        try:
+            return kmeans_results[max(kmeans_results)]
+        except:
+            breakpoint()
 
     def _build_symbol_indicator_from_levels(
         self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]

@@ -4,16 +4,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import Model, CharField, UniqueConstraint
+from django.db.models import CharField, UniqueConstraint
 
 from crypto.models.abstract import AbstractModel
 
 if TYPE_CHECKING:
     from crypto.models import Quote
-
-
-class Statuses(Enum):
-    ACTIVE = "TRADING"
 
 
 class Symbol(AbstractModel):
@@ -26,7 +22,7 @@ class Symbol(AbstractModel):
         return self.name
 
     @cached_property
-    def last_quote(self) -> float:
+    def last_quote(self) -> "Quote":
         return self.quotes.get_last_pair_quote(self)
 
     @cached_property

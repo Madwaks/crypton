@@ -1,7 +1,8 @@
 import json
+from datetime import timedelta
 from logging import getLogger
 from pathlib import Path
-from typing import Union
+from typing import Union, Any
 
 import docker
 from django.db import IntegrityError
@@ -11,6 +12,7 @@ from crypto.models import Symbol, Quote
 from crypto.services.factories.quote import QuoteSymbolFactory
 from crypto.services.repositories.pair import SymbolRepository
 from crypto.services.repositories.quote import QuotesPairRepository
+from crypto.utils.etc import open_date, close_date
 from utils.binance_client import BinanceClient
 from utils.enums import TimeUnits
 
@@ -41,10 +43,23 @@ class QuotesPairImporter:
         symbol = Symbol.objects.get(name=symbol)
         json_file = self._quotes_repo.get_json_path_for_symbol(symbol, time_unit)
         quotes_json = json.loads(json_file.read_text())
+        timestamps = set(symbol.quotes.values_list("timestamp", flat=True))
+
         quotes = self._quote_factory.build_quote_for_symbol(
-            symbol, time_unit, quotes_json
+            symbol,
+            time_unit,
+            [
+                quote
+                for quote in quotes_json
+                if quote.get("timestamp") not in timestamps
+                and self._is_valid_quote(quote)
+            ],
         )
-        self._save_objects(quotes)
+        if quotes:
+            self._save_objects(quotes)
+
+    def _is_valid_quote(self, quote: dict[str, Any]):
+        return close_date(quote) < open_date(quote) + timedelta(hours=3, minutes=30)
 
     def _download_quotes(self, symbol, time_unit):
         client = docker.from_env()
@@ -63,7 +78,5 @@ class QuotesPairImporter:
         except IntegrityError as err:
             logger.info(err)
             logger.info("[Quote] Trying to save objects 1by1 ")
-
             for quote in quotes:
-                if not Quote.objects.filter(timestamp=quote.timestamp).exists():
-                    quote.save()
+                quote.save()

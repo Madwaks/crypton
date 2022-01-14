@@ -2,4 +2,5 @@ from django.contrib.admin import ModelAdmin
 
 
 class QuoteAdmin(ModelAdmin):
-    pass
+    search_fields = ("symbol__name",)
+    ordering = ("-timestamp",)

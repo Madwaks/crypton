@@ -59,10 +59,4 @@ class Distance(Model):
         )
 
     class Meta:
-        ordering = ("timestamp",)
-        constraints = (
-            UniqueConstraint(
-                fields=("timestamp", "time_unit", "symbol"),
-                name="unique_per_timestamp_tu_symbol",
-            ),
-        )
+        constraints = (UniqueConstraint(fields=("quote",), name="unique_per_quote"),)

@@ -57,7 +57,6 @@ class QuotesPairImporter:
         )
 
     def _save_objects(self, quotes: list[Quote]):
-        breakpoint()
         try:
             Quote.objects.bulk_create(quotes)
             logger.info(f"[Quotes] Stored {len(quotes)} quotes")

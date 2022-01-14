@@ -30,16 +30,18 @@ class DataFrameIndicatorFactory:
     def _build_indicators(
         self, quotes_as_dataframe: DataFrame, symbol: Symbol
     ) -> List[Indicator]:
-        list_indicators = []
         quotes = Quote.objects.filter(symbol=symbol).prefetch_related("indicators")
-        for i, row in tqdm(quotes_as_dataframe.fillna(0).iterrows()):
-            quote = quotes.get(timestamp=row["timestamp"])
-            for indicator_name in self.new_indicators_name:
-                ind_val = row[indicator_name]
-                if quote.indicators.filter(name=indicator_name).exists():
-                    continue
-                list_indicators.append(
-                    Indicator(name=indicator_name, value=ind_val, quote=quote)
-                )
+        indicators = (
+            quotes_as_dataframe.fillna(0)
+            .apply(self.parse_row_into_indicator, axis=1, args=(quotes,))
+            .dropna()
+            .to_list()
+        )
+        return indicators
 
-        return list_indicators
+    def parse_row_into_indicator(self, row, quotes):
+        quote = quotes.get(timestamp=row["timestamp"])
+        for indicator_name in self.new_indicators_name:
+            ind_val = row[indicator_name]
+            if not quote.indicators.filter(name=indicator_name).exists():
+                return Indicator(name=indicator_name, value=ind_val, quote=quote)

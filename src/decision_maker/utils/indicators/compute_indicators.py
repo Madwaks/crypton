@@ -36,9 +36,9 @@ class IndicatorComputer:
         if isinstance(symbol, str):
             symbol = Symbol.objects.get(name=symbol)
 
-        # self._compute_symbol_indicators(symbol, time_unit)
+        self._compute_symbol_indicators(symbol, time_unit)
         #
-        # self._compute_quote_indicators(symbol, time_unit)
+        self._compute_quote_indicators(symbol, time_unit)
 
         self._compute_quote_to_ind_distances(symbol, time_unit)
 
@@ -75,8 +75,8 @@ class IndicatorComputer:
             )
 
             distances.append(distance)
-
-        Distance.objects.bulk_save(distances)
+        breakpoint()
+        Distance.objects.bulk_create(distances)
 
     def _compute_symbol_indicators(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits

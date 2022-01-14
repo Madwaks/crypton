@@ -8,6 +8,7 @@ from django.db.models import (
     SET_NULL,
     CharField,
     UniqueConstraint,
+    Index,
 )
 
 from crypto.managers.quotes import QuoteManager
@@ -75,3 +76,7 @@ class Quote(Model):
                 name="unique_per_timestamp_tu_symbol",
             ),
         )
+        indexes = [
+            Index(fields=["timestamp", "symbol"]),
+            Index(fields=["timestamp"], name="timestamp_idx"),
+        ]

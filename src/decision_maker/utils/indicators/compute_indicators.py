@@ -1,11 +1,12 @@
 from logging import getLogger
 from typing import List, NoReturn, Union
 
+from django.db.models import QuerySet
 from injector import singleton, inject
 from pandas import DataFrame
 from tqdm import tqdm
 
-from crypto.models import Symbol
+from crypto.models import Symbol, Quote
 from decision_maker.models import Indicator, SymbolIndicator
 from decision_maker.models.distance import Distance
 from decision_maker.models.quote_state import QuoteState
@@ -35,69 +36,67 @@ class IndicatorComputer:
     ) -> NoReturn:
         if isinstance(symbol, str):
             symbol = Symbol.objects.get(name=symbol)
-
-        self._compute_symbol_indicators(symbol, time_unit)
+        quotes_for_symbol_and_tu = symbol.quotes.get_symbol_and_tu_quotes(
+            time_unit=time_unit
+        )
+        quotes_for_symbol_and_tu
+        self._compute_symbol_indicators(symbol, time_unit, quotes_for_symbol_and_tu)
         #
-        self._compute_quote_indicators(symbol, time_unit)
+        self._compute_quote_indicators(symbol, quotes_for_symbol_and_tu)
 
-        self._compute_quote_to_ind_distances(symbol, time_unit)
+        self._compute_quote_to_ind_distances(quotes_for_symbol_and_tu)
 
         # self._compute_distances_for_symbol(symbol)
 
     def _compute_quote_to_ind_distances(
-        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+        self, quotes_for_symbol_and_tu: QuerySet[Quote]
     ) -> NoReturn:
-        if isinstance(symbol, str):
-            symbol = Symbol.objects.get(name=symbol)
         distances = []
-        for quote in tqdm(symbol.quotes.filter(time_unit=time_unit)):
+        for quote in tqdm(quotes_for_symbol_and_tu.prefetch_related("indicators")):
             res, supp = quote.nearest_key_level
+
             mm7 = quote.indicators.get(name="MM7")
             mm20 = quote.indicators.get(name="MM20")
             mm50 = quote.indicators.get(name="MM50")
             mm100 = quote.indicators.get(name="MM100")
             mm200 = quote.indicators.get(name="MM200")
 
-            mm7 = (mm7 - quote.close if mm7.value != 0 else None,)
-            mm20 = (mm20 - quote.close if mm20.value != 0 else None,)
-            mm50 = (mm50 - quote.close if mm50.value != 0 else None,)
-            mm100 = (mm100 - quote.close if mm100.value != 0 else None,)
-            mm200 = (mm200 - quote.close if mm200.value != 0 else None,)
-            distance = Distance(
-                quote=quote,
-                mm7=mm7,
-                mm20=mm20,
-                mm50=mm50,
-                mm100=mm100,
-                mm200=mm200,
-                support=supp - quote.close,
-                resistance=res - quote.close,
-            )
+            distance = Distance()
 
+            if mm7.value != 0:
+                distance.mm7 = (mm7.value - quote.close) / quote.close
+            if mm20.value != 0:
+                distance.mm20 = (mm20.value - quote.close) / quote.close
+            if mm50.value != 0:
+                distance.mm50 = (mm50.value - quote.close) / quote.close
+            if mm100.value != 0:
+                distance.mm100 = (mm100.value - quote.close) / quote.close
+            if mm200.value != 0:
+                distance.mm200 = (mm200.value - quote.close) / quote.close
+            distance.support = (supp - quote.close) / quote.close
+            distance.resistance = (res - quote.close) / quote.close
+            distance.quote = quote
             distances.append(distance)
-        breakpoint()
         Distance.objects.bulk_create(distances)
 
     def _compute_symbol_indicators(
-        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+        self,
+        symbol: Union[str, Symbol],
+        time_unit: TimeUnits,
+        quotes_for_symbol_and_tu: QuerySet[Quote],
     ) -> NoReturn:
         symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
-            symbol, time_unit=time_unit
+            symbol, time_unit, quotes_for_symbol_and_tu
         )
         SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
-        assert (
-            len(SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit)) == 0
-        )
+
         self._save_symbol_indicators(symbol_indicators)
-        assert len(
-            SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit)
-        ) == len(symbol_indicators)
 
     def _compute_quote_indicators(
-        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+        self, symbol: Union[str, Symbol], quotes_for_symbol_and_tu: QuerySet[Quote]
     ) -> NoReturn:
-        quote_as_dataframe: DataFrame = symbol.quotes.get_as_dataframe(
-            time_unit=time_unit
+        quote_as_dataframe: DataFrame = DataFrame(
+            list(quotes_for_symbol_and_tu.values())
         )
         if not quote_as_dataframe.empty:
             indicators = self._indicators_factory.build_indicators_from_dataframe(

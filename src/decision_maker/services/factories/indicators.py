@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 
 from injector import singleton
@@ -37,11 +38,15 @@ class DataFrameIndicatorFactory:
             .dropna()
             .to_list()
         )
-        return indicators
+        return list(itertools.chain.from_iterable(indicators))
 
     def parse_row_into_indicator(self, row, quotes):
         quote = quotes.get(timestamp=row["timestamp"])
+        indicators = []
         for indicator_name in self.new_indicators_name:
             ind_val = row[indicator_name]
             if not quote.indicators.filter(name=indicator_name).exists():
-                return Indicator(name=indicator_name, value=ind_val, quote=quote)
+                indicators.append(
+                    Indicator(name=indicator_name, value=ind_val, quote=quote)
+                )
+        return indicators

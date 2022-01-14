@@ -59,7 +59,7 @@ class QuotesPairImporter:
     def _save_objects(self, quotes: list[Quote]):
         try:
             Quote.objects.bulk_create(quotes)
-            logger.info(f"[Quotes] Stored {len(quotes)} quotes")
+            logger.info(f"[Quotes] Stored {len(quotes)} quotes for {quotes[0].symbol}")
         except IntegrityError as err:
             logger.info(err)
             logger.info("[Quote] Trying to save objects 1by1 ")

@@ -32,13 +32,19 @@ class QuoteManager(Manager):
     def get_as_dataframe(
         self, time_unit: TimeUnits, symbol: Optional["Symbol"] = None
     ) -> DataFrame:
+
+        return DataFrame(
+            list(self.get_symbol_and_tu_quotes(time_unit, symbol).values())
+        )
+
+    def get_symbol_and_tu_quotes(
+        self, time_unit: TimeUnits, symbol: Optional["Symbol"] = None
+    ) -> QuerySet:
         if symbol:
-            return DataFrame(
-                list(self.filter(symbol=symbol, time_unit=time_unit).values())
-            )
+            return self.filter(symbol=symbol, time_unit=time_unit)
+        return self.filter(time_unit=time_unit)
 
-        return DataFrame(list(self.filter(time_unit=time_unit).values()))
-
-    def get_last_pair_quote(self, symbol: "Symbol") -> "Quote":
-
+    def get_last_pair_quote(self, symbol: "Symbol") -> Optional["Quote"]:
+        if not self.all().exists():
+            return None
         return self.filter(symbol=symbol).latest("timestamp")

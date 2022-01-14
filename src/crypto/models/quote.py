@@ -40,6 +40,10 @@ class Quote(Model):
         return f"{self.symbol.name} - {self.open_date} - {self.time_unit}"
 
     @property
+    def is_last_in_time(self) -> bool:
+        return self.symbol.last_quote.timestamp == self.timestamp
+
+    @property
     def open_date(self):
         dt = datetime.fromtimestamp(int(self.timestamp) / 1000)
         return datetime(

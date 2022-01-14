@@ -25,7 +25,6 @@ class Backtester:
         self._stop_loss_percent = 0.02
 
     def apply_to_symbol(self, symbol: Symbol, time_unit: TimeUnits):
-        breakpoint()
         quotes: list[Quote] = symbol.quotes.filter(time_unit=time_unit.value).order_by(
             "timestamp"
         )

@@ -1,13 +1,14 @@
 from collections import Counter
 
 import numpy as np
+from django.db.models import QuerySet
 from injector import singleton
 from pandas import DataFrame, Series
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from tqdm import tqdm
 
-from crypto.models import Symbol
+from crypto.models import Symbol, Quote
 from decision_maker.models import SymbolIndicator
 from utils.enums import TimeUnits
 
@@ -20,10 +21,13 @@ class KeyLevelFactory:
     closed: str = "left"
 
     def build_key_level_for_symbol(
-        self, symbol: Symbol, time_unit: TimeUnits
+        self,
+        symbol: Symbol,
+        time_unit: TimeUnits,
+        quotes_for_symbol_and_tu: QuerySet[Quote],
     ) -> list[SymbolIndicator]:
 
-        quotes: DataFrame = symbol.quotes.get_as_dataframe(time_unit=time_unit)
+        quotes: DataFrame = DataFrame(list(quotes_for_symbol_and_tu.values()))
         higher_res = quotes[["open", "high", "low", "close"]].max().max()
         lower_supp = quotes[["open", "high", "low", "close"]].min().min()
         prices = self._get_price_counter(quotes)

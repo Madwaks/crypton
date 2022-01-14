@@ -3,9 +3,11 @@ from typing import List, NoReturn, Union
 
 from injector import singleton, inject
 from pandas import DataFrame
+from tqdm import tqdm
 
 from crypto.models import Symbol
 from decision_maker.models import Indicator, SymbolIndicator
+from decision_maker.models.distance import Distance
 from decision_maker.models.quote_state import QuoteState
 from decision_maker.services.factories.indicators import DataFrameIndicatorFactory
 from decision_maker.services.factories.key_level import KeyLevelFactory
@@ -34,11 +36,47 @@ class IndicatorComputer:
         if isinstance(symbol, str):
             symbol = Symbol.objects.get(name=symbol)
 
-        self._compute_symbol_indicators(symbol, time_unit)
-
-        self._compute_quote_indicators(symbol, time_unit)
+        # self._compute_symbol_indicators(symbol, time_unit)
         #
+        # self._compute_quote_indicators(symbol, time_unit)
+
+        self._compute_quote_to_ind_distances(symbol, time_unit)
+
         # self._compute_distances_for_symbol(symbol)
+
+    def _compute_quote_to_ind_distances(
+        self, symbol: Union[str, Symbol], time_unit: TimeUnits
+    ) -> NoReturn:
+        if isinstance(symbol, str):
+            symbol = Symbol.objects.get(name=symbol)
+        distances = []
+        for quote in tqdm(symbol.quotes.filter(time_unit=time_unit)):
+            res, supp = quote.nearest_key_level
+            mm7 = quote.indicators.get(name="MM7")
+            mm20 = quote.indicators.get(name="MM20")
+            mm50 = quote.indicators.get(name="MM50")
+            mm100 = quote.indicators.get(name="MM100")
+            mm200 = quote.indicators.get(name="MM200")
+
+            mm7 = (mm7 - quote.close if mm7.value != 0 else None,)
+            mm20 = (mm20 - quote.close if mm20.value != 0 else None,)
+            mm50 = (mm50 - quote.close if mm50.value != 0 else None,)
+            mm100 = (mm100 - quote.close if mm100.value != 0 else None,)
+            mm200 = (mm200 - quote.close if mm200.value != 0 else None,)
+            distance = Distance(
+                quote=quote,
+                mm7=mm7,
+                mm20=mm20,
+                mm50=mm50,
+                mm100=mm100,
+                mm200=mm200,
+                support=supp - quote.close,
+                resistance=res - quote.close,
+            )
+
+            distances.append(distance)
+
+        Distance.objects.bulk_save(distances)
 
     def _compute_symbol_indicators(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits

@@ -16,13 +16,8 @@ class DataFrameIndicatorFactory:
     def build_indicators_from_dataframe(
         self, quotes_as_dataframe: DataFrame, symbol: Symbol
     ) -> List[Indicator]:
-        indicators_dataframe = self._build_dataframe(quotes_as_dataframe)
+        indicators_dataframe = self._build_moving_average_df(quotes_as_dataframe)
         return self._build_indicators(indicators_dataframe, symbol=symbol)
-
-    def _build_dataframe(self, quotes_as_dataframe: DataFrame) -> DataFrame:
-        moving_avg_df = self._build_moving_average_df(quotes_as_dataframe)
-
-        return moving_avg_df
 
     def _build_moving_average_df(self, quotes_as_df: DataFrame) -> DataFrame:
         indicators_df = quotes_as_df.copy()
@@ -41,10 +36,7 @@ class DataFrameIndicatorFactory:
             quote = quotes.get(timestamp=row["timestamp"])
             for indicator_name in self.new_indicators_name:
                 ind_val = row[indicator_name]
-                if (
-                    quote.indicators.filter(name=indicator_name).exists()
-                    or ind_val == 0
-                ):
+                if quote.indicators.filter(name=indicator_name).exists():
                     continue
                 list_indicators.append(
                     Indicator(name=indicator_name, value=ind_val, quote=quote)

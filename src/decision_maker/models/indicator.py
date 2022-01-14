@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 
 from decision_maker.managers.indicator import IndicatorManager
@@ -23,8 +25,11 @@ class Indicator(models.Model):
     def __add__(self, other):
         return self.value + other.value
 
-    def __sub__(self, other):
-        return self.value - other.value
+    def __sub__(self, other: Union[float, "Indicator"]):
+        if isinstance(other, Indicator):
+            return self.value - other.value
+        else:
+            return self.value - other
 
     def __gt__(self, other):
         return self.value > other.value

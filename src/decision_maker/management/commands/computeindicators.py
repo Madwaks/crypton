@@ -24,8 +24,8 @@ class Command(BaseCommand):
         from utils.enums import TimeUnits
         from decision_maker.utils.indicators.compute_indicators import IndicatorComputer
 
-        pair: str = options["symbol"]
+        symbol: str = options["symbol"]
         tu = TimeUnits.from_code(options["time_unit"])
 
         computer = provide(IndicatorComputer)
-        computer.compute_indicators_for_symbol(symbol=pair, time_unit=tu)
+        computer.compute_indicators_for_symbol(symbol=symbol, time_unit=tu)

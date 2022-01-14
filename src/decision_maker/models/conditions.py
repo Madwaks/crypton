@@ -1,6 +1,9 @@
+from typing import TYPE_CHECKING
+
 from django.db.models import Model, CharField, UniqueConstraint
 
-from crypto.models import Quote
+if TYPE_CHECKING:
+    from crypto.models import Quote
 from decision_maker.models.enums import Operator, AvailableIndicators, LogicOp
 
 
@@ -13,7 +16,7 @@ class Condition(Model):
     def __str__(self):
         return f"{self.base_name} {self.operator} {self.name_to_compare}"
 
-    def is_fulfilled(self, quote: Quote) -> bool:
+    def is_fulfilled(self, quote: "Quote") -> bool:
         base_indicator = quote.indicators.get(name=self.base_name)
         compared_indicator = quote.indicators.get(name=self.name_to_compare)
 

@@ -22,9 +22,10 @@ class Backtester:
         self._test_client = test_client
         self._strat_factory = strategy_factory
         self._portfolio = Portfolio(solde=2000)
-        self._stop_loss_percent = 0.05
+        self._stop_loss_percent = 0.02
 
     def apply_to_symbol(self, symbol: Symbol, time_unit: TimeUnits):
+        breakpoint()
         quotes: list[Quote] = symbol.quotes.filter(time_unit=time_unit.value).order_by(
             "timestamp"
         )

@@ -1,6 +1,9 @@
+from typing import TYPE_CHECKING
+
 from django.db.models import Model, ManyToManyField
 
-from crypto.models import Quote
+if TYPE_CHECKING:
+    from crypto.models import Quote
 from decision_maker.models.enums import LogicOp
 
 
@@ -9,11 +12,11 @@ class Strategy(Model):
         "decision_maker.Condition", related_name="strategies", max_length=128
     )
 
-    def apply_to_quote(self, quote: Quote):
+    def apply_to_quote(self, quote: "Quote"):
 
         pass
 
-    def fulfill_conditions(self, quote: Quote) -> bool:
+    def fulfill_conditions(self, quote: "Quote") -> bool:
 
         and_condition = [
             cond.is_fulfilled(quote)

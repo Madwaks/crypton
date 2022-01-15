@@ -1,8 +1,9 @@
 from collections import Counter
+from dataclasses import dataclass
 
 import numpy as np
 from django.db.models import QuerySet
-from injector import singleton
+from injector import singleton, inject
 from pandas import DataFrame, Series
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
@@ -15,24 +16,28 @@ from utils.enums import TimeUnits
 
 @singleton
 class KeyLevelFactory:
-    window_size: int = 100
-    nb_digits: int = 2
-    center: bool = False
-    closed: str = "left"
+    @dataclass
+    class Configuration:
+        window_size: int = 100
+        nb_digits: int = 2
+        center: bool = False
+        closed: str = "left"
+
+    @inject
+    def __init__(self, config: Configuration):
+        self._config = config
 
     def build_key_level_for_symbol(
-        self,
-        symbol: Symbol,
-        time_unit: TimeUnits,
-        quotes_for_symbol_and_tu: QuerySet[Quote],
+        self, symbol: Symbol, time_unit: TimeUnits, quotes: QuerySet[Quote]
     ) -> list[SymbolIndicator]:
 
-        quotes: DataFrame = DataFrame(list(quotes_for_symbol_and_tu.values()))
+        quotes: DataFrame = DataFrame(list(quotes.values()))
         higher_res = quotes[["open", "high", "low", "close"]].max().max()
         lower_supp = quotes[["open", "high", "low", "close"]].min().min()
         prices = self._get_price_counter(quotes)
-        if prices:
-            best_kmeans = self._find_best_kmeans(prices)
+        best_kmeans = self._find_best_kmeans(prices)
+
+        if best_kmeans:
             key_levels = list(best_kmeans.cluster_centers_.flatten())
 
             key_levels += [higher_res, lower_supp]
@@ -42,7 +47,11 @@ class KeyLevelFactory:
             )
         return []
 
+    def _get_max_clusters(self, prices: list) -> int:
+        return int((len(prices) + 1) / 2)
+
     def _get_price_counter(self, quotes: DataFrame) -> list[float]:
+
         counter_level = Counter()
         min_lows, max_lows = self._get_rolling_min_max(quotes, "low")
         counter_level.update(Counter(min_lows))
@@ -52,14 +61,13 @@ class KeyLevelFactory:
         counter_level.update(Counter(min_highs))
         counter_level.update(Counter(max_highs))
 
-        # min_opens, max_opens = self._get_rolling_min_max(quotes, "open")
-        # counter_level.update(Counter(min_opens))
-        # counter_level.update(Counter(max_opens))
-        #
-        #
-        # min_closes, max_closes = self._get_rolling_min_max(quotes, "close")
-        # counter_level.update(Counter(min_closes))
-        # counter_level.update(Counter(max_closes))
+        min_opens, max_opens = self._get_rolling_min_max(quotes, "open")
+        counter_level.update(Counter(min_opens))
+        counter_level.update(Counter(max_opens))
+
+        min_closes, max_closes = self._get_rolling_min_max(quotes, "close")
+        counter_level.update(Counter(min_closes))
+        counter_level.update(Counter(max_closes))
 
         counter_level = {
             price: counter for price, counter in counter_level.items() if counter >= 100
@@ -71,24 +79,23 @@ class KeyLevelFactory:
         self, quotes_df: DataFrame, column_name: str
     ) -> tuple[Series, Series]:
         rolling_df: Series = quotes_df[column_name].rolling(
-            self.window_size, center=self.center, closed=self.closed
+            window=self._config.window_size,
+            center=self._config.center,
+            closed=self._config.closed,
         )
         return rolling_df.min().dropna(), rolling_df.max().dropna()
 
-    @staticmethod
-    def _find_best_kmeans(prices: list[float]) -> KMeans:
+    def _find_best_kmeans(self, prices: list[float]) -> KMeans:
         kmeans_results: dict[float, KMeans] = dict()
         array = np.array(prices).reshape(-1, 1)
-        for n_cluster in range(5, int((len(prices) + 1) / 2)):
+        max_clusters = self._get_max_clusters(prices)
+        for n_cluster in range(5, max_clusters):
             kmeans = KMeans(n_clusters=n_cluster)
             kmeans.fit(array)
             labels = kmeans.fit_predict(array)
             silhouette = silhouette_score(array, labels)
             kmeans_results[silhouette] = kmeans
-        try:
-            return kmeans_results[max(kmeans_results)]
-        except:
-            breakpoint()
+        return kmeans_results[max(kmeans_results)]
 
     def _build_symbol_indicator_from_levels(
         self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]

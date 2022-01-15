@@ -43,23 +43,25 @@ class QuotesPairImporter:
         symbol = Symbol.objects.get(name=symbol)
         json_file = self._quotes_repo.get_json_path_for_symbol(symbol, time_unit)
         quotes_json = json.loads(json_file.read_text())
+        if len(quotes_json) < 1000:
+            return
+        quotes = self.get_missing_quotes(symbol, quotes_json)
+        if quotes:
+            missing_quotes = self._quote_factory.build_quote_for_symbol(
+                symbol, time_unit, quotes
+            )
+            Quote.objects.bulk_create(missing_quotes)
+            logger.info(f"Stored {len(quotes)} for {symbol}")
+
+    def get_missing_quotes(self, symbol: Symbol, quotes: list[dict[str, Any]]):
         timestamps = set(symbol.quotes.values_list("timestamp", flat=True))
 
-        quotes = self._quote_factory.build_quote_for_symbol(
-            symbol,
-            time_unit,
-            [
-                quote
-                for quote in quotes_json
-                if quote.get("timestamp") not in timestamps
-                and self._is_valid_quote(quote)
-            ],
-        )
-        if quotes:
-            self._save_objects(quotes)
-
-    def _is_valid_quote(self, quote: dict[str, Any]):
-        return close_date(quote) < open_date(quote) + timedelta(hours=3, minutes=30)
+        return [
+            quote
+            for quote in quotes
+            if quote.get("timestamp") not in timestamps
+            and open_date(quote) < close_date(quote) - timedelta(hours=3, minutes=30)
+        ]
 
     def _download_quotes(self, symbol, time_unit):
         client = docker.from_env()
@@ -70,13 +72,3 @@ class QuotesPairImporter:
             volumes={host_directory: {"bind": "/data", "mode": "rw"}},
             remove=True,
         )
-
-    def _save_objects(self, quotes: list[Quote]):
-        try:
-            Quote.objects.bulk_create(quotes)
-            logger.info(f"[Quotes] Stored {len(quotes)} quotes for {quotes[0].symbol}")
-        except IntegrityError as err:
-            logger.info(err)
-            logger.info("[Quote] Trying to save objects 1by1 ")
-            for quote in quotes:
-                quote.save()

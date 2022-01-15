@@ -28,7 +28,8 @@ class Command(BaseCommand):
 
         tu = TimeUnits.from_code(options["time_unit"])
         quotes_storer = provide(QuotesPairImporter)
-        from crypto.utils.most_traded_coins import MOST_TRADED_COINS
 
-        for symbol in tqdm(Symbol.objects.filter(name__in=MOST_TRADED_COINS)):
+        from crypto.utils.etc import SYMBOLS_TO_COMPUTE
+
+        for symbol in tqdm(SYMBOLS_TO_COMPUTE):
             quotes_storer.import_quotes(symbol=symbol, time_unit=tu)

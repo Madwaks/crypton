@@ -32,7 +32,7 @@ class SymbolImporter:
     def _import_symbols(self, symbols_json: list[dict]):
         symbols = self._symbol_factory.build_symbols(symbols_json)
         Symbol.objects.bulk_create(symbols)
-        logger.info(f"[Symbols] Stored {len(symbols_json)} symbols")
+        logger.info(f"[Symbols] Stored {len(symbols)} symbols")
 
     def _download_available_pairs(self) -> NoReturn:
         client = docker.from_env()

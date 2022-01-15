@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from django.db.models import (
     Model,
@@ -8,7 +9,8 @@ from django.db.models import (
     OneToOneField,
 )
 
-from crypto.models import Quote
+if TYPE_CHECKING:
+    from crypto.models import Quote
 
 
 class Distance(Model):
@@ -19,7 +21,7 @@ class Distance(Model):
     MM200 = FloatField(max_length=128, verbose_name="mm200", null=True)
     support = FloatField(max_length=128, verbose_name="support")
     resistance = FloatField(max_length=128, verbose_name="resistance")
-    quote: Quote = OneToOneField(
+    quote: "Quote" = OneToOneField(
         "crypto.Quote",
         related_name="distances",
         max_length=128,

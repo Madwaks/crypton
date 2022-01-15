@@ -3,3 +3,4 @@ from .indicator import Indicator
 from .quote_state import QuoteState
 from .strategy import Strategy
 from .symbol_indicator import SymbolIndicator
+from .distance import Distance

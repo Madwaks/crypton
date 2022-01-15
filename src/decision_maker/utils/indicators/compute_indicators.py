@@ -36,26 +36,20 @@ class IndicatorComputer:
         self, symbol: Union[str, Symbol], time_unit: TimeUnits
     ) -> NoReturn:
         if isinstance(symbol, str):
-            try:
-                symbol = Symbol.objects.get(name=symbol)
-            except:
-                return
-        breakpoint()
-        quotes_for_symbol_and_tu = symbol.quotes.get_symbol_and_tu_quotes(
-            time_unit=time_unit
-        )
-        if not symbol.indicators.exists():
-            self._compute_symbol_indicators(symbol, time_unit, quotes_for_symbol_and_tu)
+            symbol = Symbol.objects.get(name=symbol)
+        quotes = symbol.quotes.get_symbol_and_tu_quotes(time_unit=time_unit)
 
-        quotes_with_missing_indicators = quotes_for_symbol_and_tu.filter(
-            indicators=None
-        )
+        if symbol.quotes.exists() or quotes.exists():
+            if not symbol.indicators.exists():
+                self._compute_symbol_indicators(symbol, time_unit, quotes)
 
-        self._compute_quote_indicators(symbol, quotes_with_missing_indicators)
+            quotes_with_missing_indicators = quotes.filter(indicators=None)
 
-        self._compute_quote_to_ind_distances(quotes_with_missing_indicators)
+            self._compute_quote_indicators(symbol, quotes_with_missing_indicators)
+            quote_without_distances = quotes.filter(distances=None)
+            self._compute_quote_to_ind_distances(quote_without_distances)
 
-        # self._compute_distances_for_symbol(symbol)
+            # self._compute_distances_for_symbol(symbol)
 
     def _compute_quote_to_ind_distances(self, quotes: QuerySet[Quote]) -> NoReturn:
         distances = []
@@ -82,14 +76,14 @@ class IndicatorComputer:
         Distance.objects.bulk_create(distances)
 
     def _compute_symbol_indicators(
-        self,
-        symbol: Union[str, Symbol],
-        time_unit: TimeUnits,
-        quotes_for_symbol_and_tu: QuerySet[Quote],
+        self, symbol: Union[str, Symbol], time_unit: TimeUnits, quotes: QuerySet[Quote]
     ) -> NoReturn:
-        symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
-            symbol, time_unit, quotes_for_symbol_and_tu
-        )
+        try:
+            symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
+                symbol, time_unit, quotes
+            )
+        except:
+            breakpoint()
         SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
 
         self._save_symbol_indicators(symbol_indicators)

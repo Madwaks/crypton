@@ -23,11 +23,10 @@ class Command(BaseCommand):
         from utils.service_provider import provide
         from utils.enums import TimeUnits
         from decision_maker.utils.indicators.compute_indicators import IndicatorComputer
+        from crypto.utils.etc import SYMBOLS_TO_COMPUTE
 
         tu = TimeUnits.from_code(options["time_unit"])
 
         computer = provide(IndicatorComputer)
-        from crypto.utils.most_traded_coins import MOST_TRADED_COINS
-
-        for symbol in tqdm(MOST_TRADED_COINS):
+        for symbol in tqdm(SYMBOLS_TO_COMPUTE):
             computer.compute_indicators_for_symbol(symbol=symbol, time_unit=tu)

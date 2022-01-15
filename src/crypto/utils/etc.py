@@ -1,5 +1,11 @@
 from datetime import datetime
 
+from crypto.models import Symbol
+
+SYMBOLS_TO_COMPUTE = Symbol.objects.filter(name__contains="USD").exclude(
+    name="USDTBKRW"
+)[:50]
+
 
 def open_date(quote):
     dt = datetime.fromtimestamp(int(quote.get("timestamp")) / 1000)

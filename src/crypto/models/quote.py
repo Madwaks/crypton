@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import cached_property
+from typing import TYPE_CHECKING
 
 from django.db.models import (
     Model,
@@ -12,6 +13,9 @@ from django.db.models import (
 )
 
 from crypto.managers.quotes import QuoteManager
+
+if TYPE_CHECKING:
+    from crypto.models import Symbol
 from decision_maker.services.repositories.indicator import find_nearest_supp_and_res
 from utils.enums import TimeUnits
 
@@ -23,7 +27,7 @@ class Quote(Model):
     high = FloatField(max_length=128, verbose_name="high_price")
     low = FloatField(max_length=128, verbose_name="low_price")
     volume = FloatField(verbose_name="volumes")
-    symbol = ForeignKey(
+    symbol: "Symbol" = ForeignKey(
         "crypto.Symbol",
         related_name="quotes",
         max_length=128,
@@ -81,6 +85,7 @@ class Quote(Model):
             ),
         )
         indexes = [
-            Index(fields=["timestamp", "symbol"]),
-            Index(fields=["timestamp"], name="timestamp_idx"),
+            Index(fields=["timestamp", "symbol", "time_unit"]),
+            Index(fields=["symbol", "time_unit"]),
+            Index(fields=["timestamp"]),
         ]

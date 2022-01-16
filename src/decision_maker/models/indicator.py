@@ -51,6 +51,8 @@ class Indicator(models.Model):
             ),
         )
 
+        indexes = [models.Index(fields=["name"])]
+
     def save(self, **kwargs):
         quote = self.quote
         if quote and quote.pk is None:

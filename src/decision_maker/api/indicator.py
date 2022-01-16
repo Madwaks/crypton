@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView
 
 from decision_maker.models import Indicator
-from decision_maker.serializers.indicator import IndicatorSerializer
+from decision_maker.api.serializers.indicator import IndicatorSerializer
 
 
 class IndicatorView(ListAPIView):

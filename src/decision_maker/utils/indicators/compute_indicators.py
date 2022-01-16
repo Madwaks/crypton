@@ -54,7 +54,6 @@ class IndicatorComputer:
     def _compute_quote_to_ind_distances(self, quotes: QuerySet[Quote]) -> NoReturn:
         distances = []
         available_indicators = AvailableIndicators.values
-        qs = quotes.filter(distances=None).prefetch_related("indicators")
         for quote in tqdm(quotes.prefetch_related("indicators")):
             distance = Distance(quote=quote)
             res, supp = quote.nearest_key_level
@@ -65,11 +64,11 @@ class IndicatorComputer:
                     setattr(
                         distance,
                         indicator_name.upper(),
-                        (mm.value - quote.close) / quote.close,
+                        (quote.close - mm.value) / quote.close,
                     )
 
-            distance.support = (supp - quote.close) / quote.close
-            distance.resistance = (res - quote.close) / quote.close
+            distance.support = (quote.close - supp) / quote.close
+            distance.resistance = (quote.close - res) / quote.close
 
             distances.append(distance)
 
@@ -78,12 +77,9 @@ class IndicatorComputer:
     def _compute_symbol_indicators(
         self, symbol: Union[str, Symbol], time_unit: TimeUnits, quotes: QuerySet[Quote]
     ) -> NoReturn:
-        try:
-            symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
-                symbol, time_unit, quotes
-            )
-        except:
-            breakpoint()
+        symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
+            symbol, time_unit, quotes
+        )
         SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
 
         self._save_symbol_indicators(symbol_indicators)

@@ -2,16 +2,17 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import QuerySet, F
 
 from crypto.models import Symbol
+from decision_maker.models import Distance
 
 
 class DistanceAdmin(ModelAdmin):
     list_display = (
         "quote",
-        "MM7",
-        "MM20",
-        "MM50",
-        "MM100",
-        "MM200",
+        "abs_mm7",
+        "abs_mm_20",
+        "abs_mm_50",
+        "abs_mm_100",
+        "abs_mm_200",
         "support",
         "resistance",
     )
@@ -27,15 +28,17 @@ class DistanceAdmin(ModelAdmin):
         )
         return filtered_qs
 
-    def get_ordering(self, request):
-        pass
-
-    # def get_queryset(self, request):
-    #     qs = super(ShotsAdmin, self).get_queryset(request)
-    #     qs = qs.annotate(ratio=F('hits') * 100 / F('all'))
-    #     return qs
-
-    def get_abs_mm7(self, obj):
+    def abs_mm7(self, obj: Distance):
         return obj.abs_mm7
 
-    get_abs_mm7.admin_order_field = "abs_mm7"
+    def abs_mm_20(self, obj: Distance):
+        return obj.abs_mm_20
+
+    def abs_mm_50(self, obj: Distance):
+        return obj.abs_mm_50
+
+    def abs_mm_100(self, obj: Distance):
+        return obj.abs_mm_100
+
+    def abs_mm_200(self, obj: Distance):
+        return obj.abs_mm_200

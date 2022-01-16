@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from django.db.models import (
@@ -7,6 +8,7 @@ from django.db.models import (
     SET_NULL,
     UniqueConstraint,
     OneToOneField,
+    Index,
 )
 
 if TYPE_CHECKING:
@@ -32,29 +34,26 @@ class Distance(Model):
     def __str__(self):
         return f"Distance {self.quote}"
 
-    @property
-    def open_date(self):
-        dt = datetime.fromtimestamp(int(self.timestamp) / 1000)
-        return datetime(
-            year=dt.year,
-            month=dt.month,
-            day=dt.day,
-            hour=dt.hour,
-            minute=dt.minute,
-            second=dt.second,
-        )
+    @cached_property
+    def abs_mm7(self) -> float:
+        return abs(self.MM7)
 
-    @property
-    def close_date(self):
-        dt = datetime.fromtimestamp(int(self.close_time) / 1000)
-        return datetime(
-            year=dt.year,
-            month=dt.month,
-            day=dt.day,
-            hour=dt.hour,
-            minute=dt.minute,
-            second=dt.second,
-        )
+    @cached_property
+    def abs_mm_20(self) -> float:
+        return abs(self.MM20)
+
+    @cached_property
+    def abs_mm_50(self) -> float:
+        return abs(self.MM50)
+
+    @cached_property
+    def abs_mm_100(self) -> float:
+        return abs(self.MM100)
+
+    @cached_property
+    def abs_mm_200(self) -> float:
+        return abs(self.MM200)
 
     class Meta:
         constraints = (UniqueConstraint(fields=("quote",), name="unique_per_quote"),)
+        indexes = [Index(fields=["quote"])]

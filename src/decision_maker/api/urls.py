@@ -3,6 +3,7 @@ from rest_framework.schemas import get_schema_view
 
 from decision_maker.api.indicator import IndicatorView
 from decision_maker.api.key_level import KeyLevelView
+from decision_maker.api.views.distances import DistanceView
 
 urlpatterns = [
     re_path(
@@ -20,4 +21,5 @@ urlpatterns = [
         KeyLevelView.as_view(),
         name="KeyLevel Symbol",
     ),
+    re_path("distances/", DistanceView.as_view(), name="distance"),
 ]

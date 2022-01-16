@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from decision_maker.models import Indicator, SymbolIndicator
+from decision_maker.models import Indicator, SymbolIndicator, Distance
 
 
 class IndicatorSerializer(serializers.ModelSerializer):

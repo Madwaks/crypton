@@ -1,3 +1,4 @@
+import datetime
 import json
 from datetime import timedelta
 from logging import getLogger
@@ -55,12 +56,14 @@ class QuotesPairImporter:
 
     def get_missing_quotes(self, symbol: Symbol, quotes: list[dict[str, Any]]):
         timestamps = set(symbol.quotes.values_list("timestamp", flat=True))
-
+        close_timest = max([int(quote.get("close_time")) for quote in quotes])
         return [
             quote
             for quote in quotes
             if quote.get("timestamp") not in timestamps
-            and open_date(quote) < close_date(quote) - timedelta(hours=3, minutes=30)
+            and open_date(quote) < close_date(quote) - timedelta(hours=3, minutes=58)
+            and datetime.datetime.fromtimestamp(close_timest / 1000).day
+            == datetime.datetime.today().day
         ]
 
     def _download_quotes(self, symbol, time_unit):

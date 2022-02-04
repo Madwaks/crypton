@@ -1,5 +1,4 @@
 from logging import Logger, getLogger
-from logging import Logger, getLogger
 from typing import List
 
 from django.conf import settings

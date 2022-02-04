@@ -1,10 +1,9 @@
-from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 import numpy as np
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import CharField, UniqueConstraint
+from django.db.models import CharField, UniqueConstraint, OneToOneField, SET_NULL
 
 from crypto.models.abstract import AbstractModel
 
@@ -16,14 +15,19 @@ class Symbol(AbstractModel):
     name = CharField(max_length=20)
     base_asset = CharField(max_length=10)
     quote_asset = CharField(max_length=10)
-    order_types = ArrayField(base_field=CharField(max_length=64, null=True), size=10)
+    order_types = ArrayField(
+        base_field=CharField(max_length=64, null=True), size=10, null=True, blank=True
+    )
+    last_quote: "Quote" = OneToOneField(
+        "crypto.Quote",
+        related_name="last_symbol",
+        max_length=128,
+        null=True,
+        on_delete=SET_NULL,
+    )
 
     def __str__(self) -> CharField:
         return self.name
-
-    @cached_property
-    def last_quote(self) -> "Quote":
-        return self.quotes.get_last_pair_quote(self)
 
     @cached_property
     def last_close(self) -> float:

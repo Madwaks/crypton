@@ -3,7 +3,7 @@ import sys
 
 from django.core.management import BaseCommand
 
-from crypto.services.importers.quotes import QuotesPairImporter
+from crypto.services.importers.quotes import QuoteImporter
 from utils.enums import TimeUnits
 
 
@@ -27,6 +27,6 @@ class Command(BaseCommand):
 
         pair: str = options["symbol"]
         tu = TimeUnits.from_code(options["time_unit"])
-        quotes_storer = provide(QuotesPairImporter)
+        quotes_storer = provide(QuoteImporter)
 
         quotes_storer.import_quotes(symbol=pair, time_unit=tu)

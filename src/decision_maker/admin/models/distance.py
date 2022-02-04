@@ -1,5 +1,5 @@
 from django.contrib.admin import ModelAdmin
-from django.db.models import QuerySet, F
+from django.db.models import QuerySet
 
 from crypto.models import Symbol
 from decision_maker.models import Distance

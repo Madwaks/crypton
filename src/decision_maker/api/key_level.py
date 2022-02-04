@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView
 
-from decision_maker.models import SymbolIndicator
 from decision_maker.api.serializers.indicator import SymbolIndicatorSerializer
+from decision_maker.models import SymbolIndicator
 
 
 class KeyLevelView(ListAPIView):

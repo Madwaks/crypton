@@ -20,7 +20,9 @@ def find_nearest_supp_and_res(quote: "Quote") -> tuple[float, float]:
     diff_supp = supp_array[supp_array.argmax()] if supp_array.any() else None
     return (
         key_levels[np.where(difference_close == diff_res)][0],
-        key_levels[np.where(difference_close == diff_supp)][0],
+        key_levels[np.where(difference_close == diff_supp)][0]
+        if diff_supp
+        else quote.close,
     )
 
 

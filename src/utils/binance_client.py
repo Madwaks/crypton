@@ -1,45 +1,113 @@
-import math
+import json
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from logging import getLogger
 from time import sleep
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+import cryptowatch as cw
+import requests
 from binance.client import Client
-from injector import singleton, inject
-from pandas import to_datetime, DataFrame
+from injector import inject
+from injector import singleton
+from pandas import DataFrame, to_datetime
 
 from crypto.models import Symbol
-
-if TYPE_CHECKING:
-    from utils.enums import TimeUnits
+from utils.enums import TimeUnits
 
 logger = getLogger("django")
 
 
+@singleton
+class CryptoComClient:
+    BASE_URL = "https://api.crypto.com/v2/public"
+
+    @dataclass
+    class Configuration:
+        api_key: str = os.getenv("CRYPTOCOM_API_KEY")
+        api_secret: str = os.getenv("CRYPTOCOM_API_SECRET")
+
+    @inject
+    def __init__(self, config: Configuration):
+        self._config = config
+
+    def get_available_instruments(self):
+        req = requests.get(f"{self.BASE_URL}/get-instruments")
+        return req.json().get("result").get("instruments")
+
+    def get_quotes(self, symbol: Symbol, timestamp: str):
+        req = requests.get(f"{self.BASE_URL}/")
+
+
+@singleton
+class CryptowatchClient:
+    @dataclass
+    class Config:
+        api_key: str = "Q4W1QDTH1F3LZYZG5BOZ"
+
+    @inject
+    def __init__(self, config: Config):
+        self._config = config
+        cw.api_key = self._config.api_key
+        self.assets = cw.assets
+        self.instruments = cw.instruments
+        self.exchanges = cw.exchanges
+        self.markets = cw.markets
+        self.available_markets = ["BINANCE", "BITFINEX", "KRAKEN"]
+        self._market_list = self.markets.list()
+
+    def get_quotes(self, symbol: Symbol, time_unit: TimeUnits):
+        quotes = getattr(
+            cw.markets.get(f"BINANCE:{symbol.name}", ohlc=True, periods=[time_unit]),
+            f"of_{time_unit}",
+            after=1421445787,
+        )
+        df = DataFrame(
+            quotes,
+            columns=[
+                "CloseTime",
+                "OpenPrice",
+                "HighPrice",
+                "LowPrice",
+                "ClosePrice",
+                "Volume",
+                "QuoteVolume",
+            ],
+        )
+
+
+@singleton
 class BinanceClient(Client):
+    @dataclass
+    class Configuration:
+        api_key: str = os.getenv("BINANCE_API_KEY")
+        api_secret: str = os.getenv("BINANCE_API_SECRET")
+
     PUBLIC_API_VERSION = "v3"
 
-    def get_needed_pair_quotes(
-        self, symbol: Symbol, time_unit: "TimeUnits", existing_data: DataFrame
-    ):
-        oldest_point, newest_point = self._get_minutes_of_new_data(
-            symbol.name, time_unit.value, existing_data
+    @inject
+    def __init__(self, config: Configuration):
+        self._config = config
+
+        super(BinanceClient, self).__init__(
+            api_key=self._config.api_key, api_secret=self._config.api_secret
         )
-        delta_min = (newest_point - oldest_point).total_seconds() / 60
-        available_data = math.ceil(delta_min / time_unit.binsize)
-        logger.info(
-            f"Downloading {delta_min} minutes of new data available for {symbol.name}, i.e. {available_data} instances of {time_unit.value} data."
-        )
-        if delta_min < 1:
-            return
-        klines = self.get_historical_klines(
-            symbol.name,
-            time_unit.value,
-            oldest_point.strftime("%d %b %Y %H:%M:%S"),
-            newest_point.strftime("%d %b %Y %H:%M:%S"),
-        )
-        return self._build_dataframe(klines)
+
+    def get_quotes(self, symbol: Symbol, time_unit: TimeUnits):
+        date = datetime.strptime("1 Jan 2017", "%d %b %Y")
+        start = symbol.last_quote.open_date if symbol.last_quote else date
+        try:
+            klines = self.get_historical_klines(
+                symbol.name, time_unit.value, start.strftime("%d %b %Y %H:%M:%S")
+            )
+            quotes = json.loads(self._build_dataframe(klines).to_json(orient="records"))
+            if start == date:
+                return quotes if len(quotes) > 1000 else []
+            else:
+                return quotes
+        except Exception:
+            logger.warning(f"{symbol.name} not found on Binance")
 
     def _build_dataframe(self, klines: list[dict[str, Any]]):
         data = DataFrame(
@@ -73,19 +141,3 @@ class BinanceClient(Client):
         )
         sleep(0.5)
         return old, new
-
-
-@singleton
-class TestClient(BinanceClient):
-    API_URL = "https://testnet.binance.vision/api"
-
-    @dataclass
-    class Configuration:
-        api_key: str
-        secret_key: str
-
-    @inject
-    def __init__(self, _config: Configuration):
-        super().__init__(
-            api_key=_config.api_key, api_secret=_config.secret_key, testnet=True
-        )

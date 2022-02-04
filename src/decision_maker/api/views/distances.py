@@ -10,13 +10,12 @@ class DistanceView(ListAPIView):
     serializer_class = DistanceSerializer
 
     def get_queryset(self):
+        available_symbols = Symbol.objects.exclude(quotes=None).prefetch_related(
+            "last_quote"
+        )
         filtered_qs: QuerySet = Distance.objects.filter(
             quote__in=[
-                symbol.last_quote
-                for symbol in Symbol.objects.exclude(quotes=None).prefetch_related(
-                    "quotes"
-                )
-                if symbol.last_quote
+                symbol.last_quote for symbol in available_symbols if symbol.last_quote
             ]
         )
         return filtered_qs

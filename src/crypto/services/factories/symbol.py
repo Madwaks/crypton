@@ -10,8 +10,7 @@ class SymbolFactory:
 
     def build_symbol(self, symbol_data: dict) -> Symbol:
         return Symbol(
-            name=symbol_data.get("symbol"),
-            base_asset=symbol_data.get("base_asset"),
-            quote_asset=symbol_data.get("quote_asset"),
-            order_types=symbol_data.get("order_types"),
+            name=symbol_data.get("instrument_name").replace("_", ""),
+            base_asset=symbol_data.get("base_currency"),
+            quote_asset=symbol_data.get("quote_currency"),
         )

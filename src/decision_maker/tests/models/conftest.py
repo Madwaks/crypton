@@ -1,11 +1,11 @@
 import pytest
 
 from crypto.models import Quote
-from crypto.services.factories.quote import QuoteSymbolFactory
+from crypto.services.factories.quote import QuoteFactory
 from utils.service_provider import provide
 
 
-class _MockQuoteFactory(QuoteSymbolFactory):
+class _MockQuoteFactory(QuoteFactory):
     def build_previous_quote_from_quote(self, quote: Quote, ts_before: int):
         return Quote(
             timestamp=quote.timestamp - ts_before,
@@ -21,5 +21,5 @@ class _MockQuoteFactory(QuoteSymbolFactory):
 
 
 @pytest.fixture(scope="module")
-def quote_factory() -> QuoteSymbolFactory:
+def quote_factory() -> QuoteFactory:
     return provide(_MockQuoteFactory)

@@ -4,7 +4,7 @@ import pytest
 from pytest_factoryboy import register
 
 from crypto.models import Symbol, Quote
-from crypto.services.importers.quotes import QuotesPairImporter
+from crypto.services.importers.quotes import QuoteImporter
 from crypto.tests.factories.symbol import SymbolFactory
 from utils.enums import TimeUnits
 
@@ -13,7 +13,7 @@ register(SymbolFactory, name="ETHBTC")
 
 @pytest.mark.django_db
 def test_quote_importer(
-    quote_importer: QuotesPairImporter, symbol: Symbol, time_unit_1d: TimeUnits
+    quote_importer: QuoteImporter, symbol: Symbol, time_unit_1d: TimeUnits
 ):
     symbol.save()
     quote_importer.import_quotes(symbol=symbol, time_unit=time_unit_1d)

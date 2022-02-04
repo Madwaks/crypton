@@ -4,15 +4,15 @@ from typing import Any
 
 import pytest
 
-from crypto.services.factories.quote import QuoteSymbolFactory
-from crypto.services.importers.quotes import QuotesPairImporter
+from crypto.services.factories.quote import QuoteFactory
+from crypto.services.importers.quotes import QuoteImporter
 from crypto.services.repositories.quote import QuotesPairRepository
 from utils.service_provider import provide, build
 
 
 @pytest.fixture(scope="module")
-def mock_quote_factory() -> QuoteSymbolFactory:
-    return provide(QuoteSymbolFactory)
+def mock_quote_factory() -> QuoteFactory:
+    return provide(QuoteFactory)
 
 
 @pytest.fixture(scope="module")
@@ -25,13 +25,13 @@ def path_to_quotes() -> Path:
     return Path("crypto/tests/data/mock_quotes.json")
 
 
-class _MockQuoteImporter(QuotesPairImporter):
+class _MockQuoteImporter(QuoteImporter):
     def _download_quotes(self, symbol, time_unit):
         pass
 
 
 @pytest.fixture(scope="module")
-def quote_importer(quote_repository: QuotesPairRepository) -> QuotesPairImporter:
+def quote_importer(quote_repository: QuotesPairRepository) -> QuoteImporter:
     return build(_MockQuoteImporter, quotes_repository=quote_repository)
 
 

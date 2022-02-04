@@ -4,8 +4,7 @@ import sys
 from django.core.management import BaseCommand
 from tqdm import tqdm
 
-from crypto.models import Symbol
-from crypto.services.importers.quotes import QuotesPairImporter
+from crypto.services.importers.quotes import QuoteImporter
 from utils.enums import TimeUnits
 
 
@@ -27,7 +26,7 @@ class Command(BaseCommand):
         from utils.service_provider import provide
 
         tu = TimeUnits.from_code(options["time_unit"])
-        quotes_storer = provide(QuotesPairImporter)
+        quotes_storer = provide(QuoteImporter)
 
         from crypto.utils.etc import SYMBOLS_TO_COMPUTE
 

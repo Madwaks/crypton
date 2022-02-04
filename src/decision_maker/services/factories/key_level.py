@@ -101,7 +101,7 @@ class KeyLevelFactory:
         self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]
     ) -> list[SymbolIndicator]:
         list_sind = []
-        for i, level in tqdm(enumerate(sorted(key_levels))):
+        for i, level in enumerate(sorted(key_levels), 1):
             s_ind = SymbolIndicator(
                 name=f"KeyLevel{i}", value=level, symbol=symbol, time_unit=time_unit
             )

@@ -5,7 +5,7 @@ import pytest
 from pytest_factoryboy import register
 
 from crypto.models import Symbol
-from crypto.services.factories.quote import QuoteSymbolFactory
+from crypto.services.factories.quote import QuoteFactory
 from crypto.tests.factories.quote import QuotesFactory
 from crypto.tests.factories.symbol import SymbolFactory
 from utils.enums import TimeUnits
@@ -16,7 +16,7 @@ register(SymbolFactory)
 
 @pytest.mark.django_db
 def test_build_simple_quote(
-    mock_quote_factory: QuoteSymbolFactory,
+    mock_quote_factory: QuoteFactory,
     mock_quotes_json: list[dict[str, Any]],
     symbol: Symbol,
     time_unit_4h: TimeUnits,

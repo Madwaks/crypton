@@ -33,21 +33,9 @@ def _configure_symbol_repository(binder: Binder, settings: LazySettings):
     )
 
 
-def _configure_test_client(binder: Binder, settings: LazySettings):
-    from utils.binance_client import TestClient
-
-    binder.bind(
-        TestClient.Configuration,
-        TestClient.Configuration(
-            api_key=settings.TEST_API_KEY, secret_key=settings.TEST_SECRET_KEY
-        ),
-    )
-
-
 def _configure(binder: Binder):
     _configure_quotes_repository(binder, settings)
     _configure_symbol_repository(binder, settings)
-    _configure_test_client(binder, settings)
 
 
 def _create_injector():

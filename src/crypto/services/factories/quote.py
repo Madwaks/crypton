@@ -1,15 +1,19 @@
+from datetime import timedelta
+from typing import Any
+
 from injector import singleton
 
 from crypto.models import Symbol, Quote
+from crypto.utils.etc import close_date, open_date
 from utils.enums import TimeUnits
 
 QuotePairJSON = dict[str, any]
 
 
 @singleton
-class QuoteSymbolFactory:
+class QuoteFactory:
     def build_quote_for_symbol(
-        self, symbol: Symbol, time_unit: TimeUnits, objs: list[QuotePairJSON]
+        self, symbol: Symbol, time_unit: TimeUnits, objs: list[dict[str, Any]]
     ) -> list[Quote]:
         return [self.build_quote(obj, symbol, time_unit) for obj in objs]
 

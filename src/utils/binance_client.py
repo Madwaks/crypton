@@ -6,7 +6,6 @@ from logging import getLogger
 from time import sleep
 from typing import Any
 
-import cryptowatch as cw
 import requests
 from binance.client import Client
 from injector import inject
@@ -36,45 +35,42 @@ class CryptoComClient:
         req = requests.get(f"{self.BASE_URL}/get-instruments")
         return req.json().get("result").get("instruments")
 
-    def get_quotes(self, symbol: Symbol, timestamp: str):
-        req = requests.get(f"{self.BASE_URL}/")
 
-
-@singleton
-class CryptowatchClient:
-    @dataclass
-    class Config:
-        api_key: str = "Q4W1QDTH1F3LZYZG5BOZ"
-
-    @inject
-    def __init__(self, config: Config):
-        self._config = config
-        cw.api_key = self._config.api_key
-        self.assets = cw.assets
-        self.instruments = cw.instruments
-        self.exchanges = cw.exchanges
-        self.markets = cw.markets
-        self.available_markets = ["BINANCE", "BITFINEX", "KRAKEN"]
-        self._market_list = self.markets.list()
-
-    def get_quotes(self, symbol: Symbol, time_unit: TimeUnits):
-        quotes = getattr(
-            cw.markets.get(f"BINANCE:{symbol.name}", ohlc=True, periods=[time_unit]),
-            f"of_{time_unit}",
-            after=1421445787,
-        )
-        df = DataFrame(
-            quotes,
-            columns=[
-                "CloseTime",
-                "OpenPrice",
-                "HighPrice",
-                "LowPrice",
-                "ClosePrice",
-                "Volume",
-                "QuoteVolume",
-            ],
-        )
+# @singleton
+# class CryptowatchClient:
+#     @dataclass
+#     class Config:
+#         api_key: str = "Q4W1QDTH1F3LZYZG5BOZ"
+#
+#     @inject
+#     def __init__(self, config: Config):
+#         self._config = config
+#         cw.api_key = self._config.api_key
+#         self.assets = cw.assets
+#         self.instruments = cw.instruments
+#         self.exchanges = cw.exchanges
+#         self.markets = cw.markets
+#         self.available_markets = ["BINANCE", "BITFINEX", "KRAKEN"]
+#         self._market_list = self.markets.list()
+#
+#     def get_quotes(self, symbol: Symbol, time_unit: TimeUnits):
+#         quotes = getattr(
+#             cw.markets.get(f"BINANCE:{symbol.name}", ohlc=True, periods=[time_unit]),
+#             f"of_{time_unit}",
+#             after=1421445787,
+#         )
+#         df = DataFrame(
+#             quotes,
+#             columns=[
+#                 "CloseTime",
+#                 "OpenPrice",
+#                 "HighPrice",
+#                 "LowPrice",
+#                 "ClosePrice",
+#                 "Volume",
+#                 "QuoteVolume",
+#             ],
+#         )
 
 
 @singleton

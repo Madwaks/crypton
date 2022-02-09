@@ -1,10 +1,8 @@
-from datetime import timedelta
 from typing import Any
 
 from injector import singleton
 
 from crypto.models import Symbol, Quote
-from crypto.utils.etc import close_date, open_date
 from utils.enums import TimeUnits
 
 QuotePairJSON = dict[str, any]

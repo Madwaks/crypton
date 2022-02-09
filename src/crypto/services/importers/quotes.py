@@ -1,5 +1,4 @@
 from datetime import timedelta
-from datetime import timedelta
 from logging import getLogger
 from typing import Union, Any
 
@@ -45,7 +44,11 @@ class QuoteImporter:
             if symbol.last_quote
             else False and close_date(obj) == symbol.last_quote.close_date
         )
-        return is_quote_uncomplete(quote) and not quote_already_exists(quote)
+        return (
+            symbol.last_quote is None
+            or (is_quote_uncomplete(quote))
+            and not quote_already_exists(quote)
+        )
 
     def _perform_save(self, quotes: list[Quote], symbol: Symbol):
         Quote.objects.bulk_create(quotes)

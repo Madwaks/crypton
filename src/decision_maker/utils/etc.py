@@ -1,15 +1,15 @@
 import datetime
 from typing import TYPE_CHECKING
-
+from utils.enums import TimeUnits
 
 if TYPE_CHECKING:
     from crypto.models import Quote
-from utils.enums import TimeUnits
 
 
 def get_timestamp_diff_unit(
     quote: "Quote", diff_number: int
 ) -> datetime.datetime.timestamp:
+
     time_unit = TimeUnits.from_code(quote.time_unit)
     return str(
         int(

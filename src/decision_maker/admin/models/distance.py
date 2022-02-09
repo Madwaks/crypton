@@ -6,13 +6,23 @@ from decision_maker.models import Distance
 
 
 class DistanceAdmin(ModelAdmin):
+    # list_display = (
+    #     "quote",
+    #     "abs_mm7",
+    #     "abs_mm_20",
+    #     "abs_mm_50",
+    #     "abs_mm_100",
+    #     "abs_mm_200",
+    #     "support",
+    #     "resistance",
+    # )
     list_display = (
         "quote",
-        "abs_mm7",
-        "abs_mm_20",
-        "abs_mm_50",
-        "abs_mm_100",
-        "abs_mm_200",
+        "MM7",
+        "MM20",
+        "MM50",
+        "MM100",
+        "MM200",
         "support",
         "resistance",
     )

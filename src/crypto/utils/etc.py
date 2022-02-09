@@ -2,10 +2,11 @@ from datetime import datetime
 
 from crypto.models import Symbol
 
-SYMBOLS_TO_COMPUTE = Symbol.objects.exclude(quotes=None)
-#     .filter(name__contains="USD").exclude(
-#     name="USDTBKRW"
-# )
+SYMBOLS_TO_COMPUTE = Symbol.objects.filter(name__contains="USD").exclude(
+    name="USDTBKRW"
+)
+
+
 def open_date(quote):
     dt = datetime.fromtimestamp(int(quote.get("timestamp")) / 1000)
     return datetime(

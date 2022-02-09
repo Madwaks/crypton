@@ -7,8 +7,6 @@ from injector import singleton, inject
 from pandas import DataFrame, Series
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-from tqdm import tqdm
-
 from crypto.models import Symbol, Quote
 from decision_maker.models import SymbolIndicator
 from utils.enums import TimeUnits
@@ -43,7 +41,9 @@ class KeyLevelFactory:
             key_levels += [higher_res, lower_supp]
 
             return self._build_symbol_indicator_from_levels(
-                symbol=symbol, time_unit=time_unit, key_levels=key_levels
+                symbol=symbol,
+                time_unit=time_unit,
+                key_levels=[round(level, 4) for level in key_levels],
             )
         return []
 
@@ -101,9 +101,16 @@ class KeyLevelFactory:
         self, symbol: Symbol, time_unit: TimeUnits, key_levels: list[float]
     ) -> list[SymbolIndicator]:
         list_sind = []
+
+        if set(key_levels) == set(symbol.indicators.values_list("value", flat=True)):
+            return list_sind
+
+        SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
+
         for i, level in enumerate(sorted(key_levels), 1):
             s_ind = SymbolIndicator(
                 name=f"KeyLevel{i}", value=level, symbol=symbol, time_unit=time_unit
             )
             list_sind.append(s_ind)
+
         return list_sind

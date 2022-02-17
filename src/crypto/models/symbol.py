@@ -5,6 +5,7 @@ import numpy as np
 from django.contrib.postgres.fields import ArrayField
 from django.db.models import CharField, UniqueConstraint, OneToOneField, SET_NULL
 
+from crypto.managers.last_quote import LastQuoteManager
 from crypto.models.abstract import AbstractModel
 
 if TYPE_CHECKING:
@@ -18,13 +19,8 @@ class Symbol(AbstractModel):
     order_types = ArrayField(
         base_field=CharField(max_length=64, null=True), size=10, null=True, blank=True
     )
-    last_quote: "Quote" = OneToOneField(
-        "crypto.Quote",
-        related_name="last_symbol",
-        max_length=128,
-        null=True,
-        on_delete=SET_NULL,
-    )
+
+    last_quotes = LastQuoteManager()
 
     def __str__(self) -> CharField:
         return self.name
@@ -68,6 +64,7 @@ class Symbol(AbstractModel):
         res_array = np.array([diff for diff in difference_close if diff > 0])
 
         diff_res = res_array[res_array.argmin()] if res_array.any() else None
+        breakpoint()
         return key_levels[np.where(difference_close == diff_res)][0]
 
     @cached_property

@@ -44,7 +44,9 @@ class QuoteManager(Manager):
             return self.filter(symbol=symbol, time_unit=time_unit)
         return self.filter(time_unit=time_unit)
 
-    def get_last_pair_quote(self, symbol: "Symbol") -> Optional["Quote"]:
+    def get_last_pair_quote(
+        self, symbol: "Symbol", time_unit: TimeUnits
+    ) -> Optional["Quote"]:
         if not self.all().exists():
             return None
-        return self.filter(symbol=symbol).latest("timestamp")
+        return self.filter(symbol=symbol, time_unit=time_unit).latest("timestamp")

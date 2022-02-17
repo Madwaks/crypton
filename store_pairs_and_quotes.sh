@@ -14,6 +14,6 @@ python src/manage.py migrate
 
 python src/manage.py importpairs
 #
-python src/manage.py importallquotes --time-unit=4h
+python src/manage.py importallquotes --time-unit=15m
 
-python src/manage.py computeallindicators --time-unit=4h
+python src/manage.py computeallindicators --time-unit=15m

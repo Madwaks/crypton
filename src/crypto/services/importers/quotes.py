@@ -33,7 +33,8 @@ class QuoteImporter:
             quotes = self._quote_factory.build_quote_for_symbol(
                 symbol, time_unit, filtered_quotes
             )
-            self._perform_save(quotes, symbol)
+
+            self._perform_save(quotes, symbol, time_unit)
 
     def _should_import_quote(self, quote: dict[str, Any], symbol: Symbol):
         is_quote_uncomplete = lambda obj: open_date(obj) < close_date(obj) - timedelta(
@@ -50,9 +51,14 @@ class QuoteImporter:
             and not quote_already_exists(quote)
         )
 
-    def _perform_save(self, quotes: list[Quote], symbol: Symbol):
+    def _perform_save(self, quotes: list[Quote], symbol: Symbol, time_unit: TimeUnits):
         Quote.objects.bulk_create(quotes)
-        last_quote = Quote.objects.get_last_pair_quote(symbol)
-        symbol.last_quote = last_quote
+        last_quote = Quote.objects.get_last_pair_quote(symbol, time_unit)
+        time_unit_symb_attr_mapping = {
+            "15m": symbol.last_quote_15m,
+            "4h": symbol.last_quote_4h,
+        }
+        symb_attr = time_unit_symb_attr_mapping.get(time_unit)
+        symb_attr = last_quote
         symbol.save()
         logger.info(f"Stored {len(quotes)} for {symbol}")

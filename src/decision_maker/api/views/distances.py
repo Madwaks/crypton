@@ -15,7 +15,9 @@ class DistanceView(ListAPIView):
         )
         filtered_qs: QuerySet = Distance.objects.filter(
             quote__in=[
-                symbol.last_quote for symbol in available_symbols if symbol.last_quote
+                symbol.get_last_quote
+                for symbol in available_symbols
+                if symbol.get_last_quote
             ]
         )
         return filtered_qs

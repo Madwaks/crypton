@@ -6,7 +6,12 @@ from crypto.models import Symbol
 @singleton
 class SymbolFactory:
     def build_symbols(self, symbols_data: list[dict]) -> list[Symbol]:
-        return [self.build_symbol(symbol_data) for symbol_data in symbols_data]
+        return [
+            self.build_symbol(symbol_data)
+            for symbol_data in symbols_data
+            if symbol_data.get("instrument_name")
+            not in Symbol.objects.values_list("name", flat=True)
+        ]
 
     def build_symbol(self, symbol_data: dict) -> Symbol:
         return Symbol(

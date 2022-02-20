@@ -1,64 +1,56 @@
-from datetime import timedelta
 from logging import getLogger
-from typing import Union, Any
+from typing import Union, Optional
 
 from injector import singleton, inject
 
 from crypto.models import Symbol, Quote
 from crypto.services.factories.quote import QuoteFactory
-from crypto.utils.etc import open_date, close_date
 from utils.binance_client import BinanceClient
+from utils.cryptowatch import CryptowatchClient
+from utils.kraken import KrakenClient
 from utils.enums import TimeUnits
-
-logger = getLogger("django")
+from utils.exceptions import NotAvailableException
 
 
 @singleton
 class QuoteImporter:
+    logger = getLogger("django")
+
     @inject
-    def __init__(self, quote_factory: QuoteFactory, binance_client: BinanceClient):
+    def __init__(
+        self,
+        quote_factory: QuoteFactory,
+        binance_client: BinanceClient,
+        kraken_client: KrakenClient,
+        cw_client: CryptowatchClient,
+    ):
         self._quote_factory = quote_factory
         self._binance_client = binance_client
+        self._kraken_client = kraken_client
+        self._cw_client = cw_client
 
     def import_quotes(self, symbol: Union[str, Symbol], time_unit: TimeUnits):
         symbol = Symbol.objects.get(name=symbol)
-        missing_quotes = self._binance_client.get_quotes(symbol, time_unit)
+        if symbol.is_up_to_date(time_unit):
+            self.logger.info(f"{symbol.name} {time_unit.value} is up to date")
+        else:
+            missing_quotes = self._find_missing_quotes(symbol, time_unit)
+            if missing_quotes:
+                quotes = self._quote_factory.build_quote_for_symbol(
+                    symbol, time_unit, missing_quotes
+                )
+                self._perform_save(quotes, symbol)
 
-        if missing_quotes:
-            filtered_quotes = [
-                quote
-                for quote in missing_quotes
-                if self._should_import_quote(quote, symbol)
-            ]
-            quotes = self._quote_factory.build_quote_for_symbol(
-                symbol, time_unit, filtered_quotes
-            )
+    def _find_missing_quotes(
+        self, symbol: Symbol, time_unit: TimeUnits
+    ) -> Optional[list]:
+        clients = [self._binance_client, self._kraken_client]
+        for client in clients:
+            try:
+                return client.get_quotes(symbol, time_unit)
+            except NotAvailableException as err:
+                self.logger.warning(err)
 
-            self._perform_save(quotes, symbol, time_unit)
-
-    def _should_import_quote(self, quote: dict[str, Any], symbol: Symbol):
-        is_quote_uncomplete = lambda obj: open_date(obj) < close_date(obj) - timedelta(
-            hours=3, minutes=58
-        )
-        quote_already_exists = (
-            lambda obj: open_date(obj) == symbol.last_quote.open_date
-            if symbol.last_quote
-            else False and close_date(obj) == symbol.last_quote.close_date
-        )
-        return (
-            symbol.last_quote is None
-            or (is_quote_uncomplete(quote))
-            and not quote_already_exists(quote)
-        )
-
-    def _perform_save(self, quotes: list[Quote], symbol: Symbol, time_unit: TimeUnits):
+    def _perform_save(self, quotes: list[Quote], symbol: Symbol):
         Quote.objects.bulk_create(quotes)
-        last_quote = Quote.objects.get_last_pair_quote(symbol, time_unit)
-        time_unit_symb_attr_mapping = {
-            "15m": symbol.last_quote_15m,
-            "4h": symbol.last_quote_4h,
-        }
-        symb_attr = time_unit_symb_attr_mapping.get(time_unit)
-        symb_attr = last_quote
-        symbol.save()
-        logger.info(f"Stored {len(quotes)} for {symbol}")
+        self.logger.info(f"Stored {len(quotes)} for {symbol}")

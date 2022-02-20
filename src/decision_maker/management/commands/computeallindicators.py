@@ -13,9 +13,7 @@ class Command(BaseCommand):
         return ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w", "1M"]
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--time-unit", choices=self.choices, type=str, required=True
-        )
+        parser.add_argument("--time-unit", choices=self.choices, type=str)
 
     def handle(self, *args, **options):
         sys.path.insert(0, os.getcwd())
@@ -25,8 +23,22 @@ class Command(BaseCommand):
         from decision_maker.utils.indicators.compute_indicators import IndicatorComputer
         from crypto.utils.etc import SYMBOLS_TO_COMPUTE
 
-        tu = TimeUnits.from_code(options["time_unit"])
+        if options["time_unit"]:
+            tus = [TimeUnits.from_code(options["time_unit"])]
+        else:
+            tus = [TimeUnits.from_code("1m"), TimeUnits.from_code("5m")]
 
         computer = provide(IndicatorComputer)
+        from decision_maker.models import SymbolIndicator
+
+        SymbolIndicator.objects.all().delete()
+        from decision_maker.models import Distance
+
+        Distance.objects.all().delete()
+        from decision_maker.models import Indicator
+
+        Indicator.objects.all().delete()
         for symbol in tqdm(SYMBOLS_TO_COMPUTE):
-            computer.compute_indicators_for_symbol(symbol=symbol, time_unit=tu)
+            for tu in tus:
+                print(f"{symbol.name} // {tu.value}")
+                computer.compute_indicators_for_symbol(symbol=symbol, time_unit=tu)

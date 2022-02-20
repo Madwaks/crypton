@@ -28,6 +28,8 @@ class KeyLevelFactory:
     def build_key_level_for_symbol(
         self, symbol: Symbol, time_unit: TimeUnits, quotes: QuerySet[Quote]
     ) -> list[SymbolIndicator]:
+        if len(quotes) < 1000:
+            return []
 
         quotes: DataFrame = DataFrame(list(quotes.values()))
         higher_res = quotes[["open", "high", "low", "close"]].max().max()
@@ -35,17 +37,15 @@ class KeyLevelFactory:
         prices = self._get_price_counter(quotes)
         best_kmeans = self._find_best_kmeans(prices)
 
-        if best_kmeans:
-            key_levels = list(best_kmeans.cluster_centers_.flatten())
+        key_levels = list(best_kmeans.cluster_centers_.flatten())
 
-            key_levels += [higher_res, lower_supp]
+        key_levels += [higher_res, lower_supp]
 
-            return self._build_symbol_indicator_from_levels(
-                symbol=symbol,
-                time_unit=time_unit,
-                key_levels=[round(level, 4) for level in key_levels],
-            )
-        return []
+        return self._build_symbol_indicator_from_levels(
+            symbol=symbol,
+            time_unit=time_unit,
+            key_levels=[round(level, 8) for level in key_levels],
+        )
 
     def _get_max_clusters(self, prices: list) -> int:
         return int((len(prices) + 1) / 2)
@@ -104,8 +104,6 @@ class KeyLevelFactory:
 
         if set(key_levels) == set(symbol.indicators.values_list("value", flat=True)):
             return list_sind
-
-        SymbolIndicator.objects.filter(symbol=symbol, time_unit=time_unit).delete()
 
         for i, level in enumerate(sorted(key_levels), 1):
             s_ind = SymbolIndicator(

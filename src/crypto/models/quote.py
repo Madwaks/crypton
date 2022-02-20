@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from dateutil import tz
 from django.db.models import (
     Model,
     FloatField,
@@ -10,6 +11,7 @@ from django.db.models import (
     CharField,
     UniqueConstraint,
     Index,
+    IntegerField,
 )
 
 from crypto.managers.quotes import QuoteManager
@@ -21,7 +23,7 @@ from utils.enums import TimeUnits
 
 
 class Quote(Model):
-    timestamp = CharField(max_length=512, default="")
+    timestamp = IntegerField(default=0)
     open = FloatField(max_length=128, verbose_name="open_price")
     close = FloatField(max_length=128, verbose_name="close_price")
     high = FloatField(max_length=128, verbose_name="high_price")
@@ -34,22 +36,18 @@ class Quote(Model):
         null=True,
         on_delete=SET_NULL,
     )
-    close_time = CharField(max_length=512, null=True, blank=True)
+    close_time = IntegerField(default=0)
     time_unit = CharField(
         choices=TimeUnits.choices, max_length=128, blank=True, null=True
     )
     objects = QuoteManager()
 
     def __str__(self):
-        return f"{self.symbol.name} - {self.open_date} - {self.time_unit}"
-
-    @property
-    def is_last_in_time(self) -> bool:
-        return self.symbol.last_quote.timestamp == self.timestamp
+        return f"{self.symbol.name} - {self.close_date} - {self.time_unit}"
 
     @property
     def open_date(self):
-        dt = datetime.fromtimestamp(int(self.timestamp) / 1000)
+        dt = datetime.fromtimestamp(self.timestamp, tz=tz.tzutc())
         return datetime(
             year=dt.year,
             month=dt.month,
@@ -61,7 +59,7 @@ class Quote(Model):
 
     @property
     def close_date(self):
-        dt = datetime.fromtimestamp(int(self.close_time) / 1000)
+        dt = datetime.fromtimestamp(self.close_time, tz=tz.tzutc())
         return datetime(
             year=dt.year,
             month=dt.month,

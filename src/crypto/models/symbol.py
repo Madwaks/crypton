@@ -1,12 +1,20 @@
+from datetime import datetime
 from functools import cached_property
 from typing import TYPE_CHECKING
 
 import numpy as np
 from django.contrib.postgres.fields import ArrayField
-from django.db.models import CharField, UniqueConstraint, OneToOneField, SET_NULL
+from django.db.models import (
+    CharField,
+    UniqueConstraint,
+    OneToOneField,
+    SET_NULL,
+    Manager,
+)
 
 from crypto.managers.last_quote import LastQuoteManager
 from crypto.models.abstract import AbstractModel
+from utils.enums import TimeUnits
 
 if TYPE_CHECKING:
     from crypto.models import Quote
@@ -19,35 +27,21 @@ class Symbol(AbstractModel):
     order_types = ArrayField(
         base_field=CharField(max_length=64, null=True), size=10, null=True, blank=True
     )
-
+    objects = Manager()
     last_quotes = LastQuoteManager()
 
     def __str__(self) -> CharField:
         return self.name
 
-    @cached_property
-    def last_close(self) -> float:
-        return self.last_quote.close
+    def is_up_to_date(self, time_unit: TimeUnits) -> bool:
+        last_quote = self.get_last_quote(time_unit)
+        if last_quote:
+            start_ = last_quote.close_date
+            return (start_ + time_unit.to_timedelta()) > datetime.utcnow()
+        return False
 
-    @cached_property
-    def last_mm_7(self) -> float:
-        return self.last_quote.indicators.get(name="MM7").value
-
-    @cached_property
-    def last_mm_20(self):
-        return self.last_quote.indicators.get(name="MM20").value
-
-    @cached_property
-    def last_mm_50(self):
-        return self.last_quote.indicators.get(name="MM50").value
-
-    @cached_property
-    def last_mm_100(self):
-        return self.last_quote.indicators.get(name="MM100").value
-
-    @cached_property
-    def last_mm_200(self):
-        return self.last_quote.indicators.get(name="MM200").value
+    def get_last_quote(self, time_unit: TimeUnits):
+        return self.quotes.get_last_quote_by_time_unit(time_unit)
 
     @cached_property
     def next_supp(self):
@@ -64,7 +58,7 @@ class Symbol(AbstractModel):
         res_array = np.array([diff for diff in difference_close if diff > 0])
 
         diff_res = res_array[res_array.argmin()] if res_array.any() else None
-        breakpoint()
+
         return key_levels[np.where(difference_close == diff_res)][0]
 
     @cached_property

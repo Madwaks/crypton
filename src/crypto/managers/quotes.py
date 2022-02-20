@@ -50,3 +50,19 @@ class QuoteManager(Manager):
         if not self.all().exists():
             return None
         return self.filter(symbol=symbol, time_unit=time_unit).latest("timestamp")
+
+    def get_last_quotes(self):
+        return self.order_by("time_unit", "-timestamp").distinct("time_unit")
+
+    def get_last_quote_by_time_unit(self, time_unit: TimeUnits):
+        return self.get_last_quotes().filter(time_unit=time_unit.value).first()
+
+    def get_max_close(self, time_unit: TimeUnits) -> float:
+        return max(
+            self.filter(time_unit=time_unit.value).values_list("close", flat=True)
+        )
+
+    def get_min_close(self, time_unit: TimeUnits) -> float:
+        return min(
+            self.filter(time_unit=time_unit.value).values_list("close", flat=True)
+        )

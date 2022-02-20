@@ -36,7 +36,8 @@ class SymbolIndicator(models.Model):
         ordering = ("name",)
         constraints = (
             models.UniqueConstraint(
-                fields=("name", "symbol"), name="unique_per_name_and_symbol"
+                fields=("name", "symbol", "time_unit"),
+                name="unique_per_name_and_symbol_and_time_unit",
             ),
         )
 

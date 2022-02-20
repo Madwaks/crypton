@@ -1,6 +1,5 @@
 from django.db.models import QuerySet
 from injector import singleton
-from tqdm import tqdm
 
 from crypto.models import Quote
 from decision_maker.models import Distance

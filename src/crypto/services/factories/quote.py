@@ -17,13 +17,13 @@ class QuoteFactory:
 
     def build_quote(self, obj: dict, symbol: Symbol, time_unit: TimeUnits) -> Quote:
         return Quote(
-            timestamp=obj.get("timestamp"),
+            timestamp=int(obj.get("timestamp")),
             open=obj.get("open"),
             close=obj.get("close"),
             high=obj.get("high"),
             low=obj.get("low"),
             volume=float(obj.get("volume")),
-            close_time=obj.get("close_time"),
+            close_time=int(obj.get("close_time")),
             symbol=symbol,
             time_unit=time_unit,
         )

@@ -1,7 +1,8 @@
 import json
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
+from time import time
 from logging import getLogger
 from time import sleep
 from typing import Any
@@ -13,7 +14,10 @@ from injector import singleton
 from pandas import DataFrame, to_datetime
 
 from crypto.models import Symbol
+from crypto.utils.etc import open_date, close_date
+from utils.abstract_client import AbstractAPIClient
 from utils.enums import TimeUnits
+from utils.exceptions import NotAvailableException
 
 logger = getLogger("django")
 
@@ -33,7 +37,10 @@ class CryptoComClient:
 
     def get_available_instruments(self):
         req = requests.get(f"{self.BASE_URL}/get-instruments")
-        return req.json().get("result").get("instruments")
+        pairs = req.json().get("result").get("instruments")
+        for pair in pairs:
+            pair["platform"] = "binance"
+        return pairs
 
 
 # @singleton
@@ -74,7 +81,7 @@ class CryptoComClient:
 
 
 @singleton
-class BinanceClient(Client):
+class BinanceClient(Client, AbstractAPIClient):
     @dataclass
     class Configuration:
         api_key: str = os.getenv("BINANCE_API_KEY")
@@ -90,20 +97,37 @@ class BinanceClient(Client):
             api_key=self._config.api_key, api_secret=self._config.api_secret
         )
 
+    def get_available_symbols(self):
+        exchange_info = self.get_exchange_info()
+        symbols = [
+            {
+                "instrument_name": info.get("symbol"),
+                "base_currency": info.get("baseAsset"),
+                "quote_currency": info.get("quoteAsset"),
+            }
+            for info in exchange_info.get("symbols")
+            if "SPOT" in info.get("permissions")
+        ]
+        return symbols
+
     def get_quotes(self, symbol: Symbol, time_unit: TimeUnits):
-        date = datetime.strptime("1 Jan 2017", "%d %b %Y")
-        start = symbol.last_quote.open_date if symbol.last_quote else date
+        start = self._get_start_datetime(symbol, time_unit)
+        if start is None:
+            return []
         try:
             klines = self.get_historical_klines(
                 symbol.name, time_unit.value, start.strftime("%d %b %Y %H:%M:%S")
             )
-            quotes = json.loads(self._build_dataframe(klines).to_json(orient="records"))
-            if start == date:
-                return quotes if len(quotes) > 1000 else []
-            else:
-                return quotes
         except Exception:
-            logger.warning(f"{symbol.name} not found on Binance")
+            raise NotAvailableException(f"{symbol.name} not found on Binance")
+
+        df = self._build_dataframe(klines)
+
+        df.loc[:, "open_date"] = df.timestamp.map(lambda quote: open_date(quote))
+        df.loc[:, "close_date"] = df.close_time.map(lambda quote: close_date(quote))
+        df = df[df["close_time"] <= int(time())]
+        quotes = json.loads(df.to_json(orient="records"))
+        return quotes
 
     def _build_dataframe(self, klines: list[dict[str, Any]]):
         data = DataFrame(
@@ -123,17 +147,12 @@ class BinanceClient(Client):
                 "ignore",
             ],
         )
-        return data
+        df = data[
+            ["timestamp", "open", "high", "low", "close", "volume", "close_time"]
+        ].copy()
 
-    def _get_minutes_of_new_data(
-        self, symbol: str, time_unit: "TimeUnits", data: DataFrame
-    ):
-        if len(data) > 0:
-            old = datetime.fromtimestamp(data["timestamp"].iloc[-1] / 1000)
-        else:
-            old = datetime.strptime("1 Jan 2017", "%d %b %Y")
-        new = to_datetime(
-            self.get_klines(symbol=symbol, interval=time_unit)[-1][0], unit="ms"
-        )
-        sleep(0.5)
-        return old, new
+        df.timestamp = (df.timestamp / 1000).astype(int)
+
+        df.close_time = (df.close_time / 1000).astype(int)
+
+        return df

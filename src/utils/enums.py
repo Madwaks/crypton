@@ -23,11 +23,11 @@ class TimeUnits(TextChoices):
         return None
 
     @property
-    def binsize(self):
-        return self.time_to_binsize[self.value]
+    def minutes_interval(self):
+        return self.time_to_minutes.get(self)
 
     @property
-    def time_to_binsize(self):
+    def time_to_minutes(self):
         return {
             self.minutes1.value: 1,
             self.minutes5.value: 5,

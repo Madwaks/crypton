@@ -31,9 +31,9 @@ class DistanceAdmin(ModelAdmin):
         qs = super(DistanceAdmin, self).get_queryset(request).prefetch_related("quote")
         filtered_qs: QuerySet = qs.filter(
             quote__in=[
-                symbol.last_quote
+                symbol.get_last_quote
                 for symbol in Symbol.objects.all().prefetch_related("quotes")
-                if symbol.last_quote
+                if symbol.get_last_quote
             ]
         )
         return filtered_qs

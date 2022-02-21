@@ -75,7 +75,7 @@ class IndicatorComputer:
             symbol_indicators = self._key_level_factory.build_key_level_for_symbol(
                 symbol, time_unit, quotes
             )
-            if save:
+            if save and symbol_indicators:
                 self._save_symbol_indicators(symbol_indicators, symbol)
             return symbol_indicators
 
@@ -92,7 +92,7 @@ class IndicatorComputer:
     ) -> NoReturn:
         SymbolIndicator.objects.bulk_create(indicator_list)
         logger.info(
-            f"[Indicators] Stored {len(indicator_list)} key levels values for {symbol.name}"
+            f"[Indicators] Stored {len(indicator_list) if indicator_list else 0} key levels values for {symbol.name}"
         )
 
     @staticmethod

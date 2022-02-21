@@ -8,7 +8,10 @@ from django.db.models import (
     UniqueConstraint,
     OneToOneField,
     Index,
+    Manager,
 )
+
+from decision_maker.managers.distance import LastDistancesManager
 
 if TYPE_CHECKING:
     from crypto.models import Quote
@@ -29,6 +32,9 @@ class Distance(Model):
         null=True,
         on_delete=SET_NULL,
     )
+    objects = Manager()
+
+    last = LastDistancesManager()
 
     def __str__(self):
         return f"Distance {self.quote}"

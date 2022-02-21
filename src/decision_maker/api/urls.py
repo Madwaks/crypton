@@ -21,5 +21,5 @@ urlpatterns = [
         KeyLevelView.as_view(),
         name="KeyLevel Symbol",
     ),
-    re_path("distances/", DistanceView.as_view(), name="distance"),
+    re_path("^distances/$", DistanceView.as_view()),
 ]

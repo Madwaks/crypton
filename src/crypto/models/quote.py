@@ -12,6 +12,7 @@ from django.db.models import (
     UniqueConstraint,
     Index,
     IntegerField,
+    BooleanField,
 )
 
 from crypto.managers.quotes import QuoteManager
@@ -40,6 +41,7 @@ class Quote(Model):
     time_unit = CharField(
         choices=TimeUnits.choices, max_length=128, blank=True, null=True
     )
+    is_last = BooleanField(default=False)
     objects = QuoteManager()
 
     def __str__(self):

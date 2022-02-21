@@ -1,5 +1,7 @@
 import os
 import sys
+from itertools import repeat
+from multiprocessing import Pool
 
 from django.core.management import BaseCommand
 from tqdm import tqdm
@@ -26,12 +28,16 @@ class Command(BaseCommand):
         if options["time_unit"]:
             tus = [TimeUnits.from_code(options["time_unit"])]
         else:
-            tus = [TimeUnits.from_code("1m"), TimeUnits.from_code("5m")]
+            tus = [TimeUnits.from_code("15m"), TimeUnits.from_code("5m")]
         quotes_storer = provide(QuoteImporter)
 
         from crypto.utils.etc import SYMBOLS_TO_COMPUTE
 
-        for symbol in tqdm(SYMBOLS_TO_COMPUTE):
-            for tu in tus:
-                print(f"{symbol.name} // {tu.value}")
+        self._update_all_symbols(SYMBOLS_TO_COMPUTE, tus, quotes_storer)
+
+    def _update_all_symbols(
+        self, symbols: list, time_units: list[TimeUnits], quotes_storer: QuoteImporter
+    ):
+        for symbol in tqdm(symbols):
+            for tu in time_units:
                 quotes_storer.import_quotes(symbol=symbol, time_unit=tu)

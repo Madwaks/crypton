@@ -25,9 +25,8 @@ def find_nearest_supp_and_res(quote: "Quote") -> tuple[float, float]:
         ],
     )
     difference_close = key_levels - quote.close
-    next_res_diff = min([diff for diff in difference_close if diff > 0])
-    next_supp_diff = min([diff for diff in difference_close if diff < 0])
-
+    next_res_diff = min([diff for diff in difference_close if diff >= 0])
+    next_supp_diff = min([diff for diff in difference_close if diff <= 0])
     return (
         key_levels[np.where(difference_close == next_res_diff)][0],
         key_levels[np.where(difference_close == next_supp_diff)][0],

@@ -8,16 +8,8 @@ from decision_maker.models import Distance
 
 class DistanceView(ListAPIView):
     serializer_class = DistanceSerializer
+    queryset = Distance.last.all()
 
     def get_queryset(self):
-        available_symbols = Symbol.objects.exclude(quotes=None).prefetch_related(
-            "last_quote"
-        )
-        filtered_qs: QuerySet = Distance.objects.filter(
-            quote__in=[
-                symbol.get_last_quote
-                for symbol in available_symbols
-                if symbol.get_last_quote
-            ]
-        )
-        return filtered_qs
+        queryset = super(DistanceView, self).get_queryset()
+        return queryset.filter(quote__time_unit="15m")

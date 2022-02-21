@@ -29,6 +29,9 @@ class QuoteImporter:
         self._kraken_client = kraken_client
         self._cw_client = cw_client
 
+    def import_all_quotes(self):
+        pass
+
     def import_quotes(self, symbol: Union[str, Symbol], time_unit: TimeUnits):
         symbol = Symbol.objects.get(name=symbol)
         if symbol.is_up_to_date(time_unit):
@@ -39,7 +42,7 @@ class QuoteImporter:
                 quotes = self._quote_factory.build_quote_for_symbol(
                     symbol, time_unit, missing_quotes
                 )
-                self._perform_save(quotes, symbol)
+                self._perform_save(quotes, symbol, time_unit=time_unit)
 
     def _find_missing_quotes(
         self, symbol: Symbol, time_unit: TimeUnits
@@ -51,6 +54,9 @@ class QuoteImporter:
             except NotAvailableException as err:
                 self.logger.warning(err)
 
-    def _perform_save(self, quotes: list[Quote], symbol: Symbol):
+    def _perform_save(self, quotes: list[Quote], symbol: Symbol, time_unit: TimeUnits):
         Quote.objects.bulk_create(quotes)
+        last_quote: Quote = symbol.get_last_quote(time_unit=time_unit)
+        last_quote.is_last = True
+        last_quote.save()
         self.logger.info(f"Stored {len(quotes)} for {symbol}")

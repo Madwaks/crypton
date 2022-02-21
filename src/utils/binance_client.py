@@ -121,13 +121,26 @@ class BinanceClient(Client, AbstractAPIClient):
         except Exception:
             raise NotAvailableException(f"{symbol.name} not found on Binance")
 
-        df = self._build_dataframe(klines)
-
-        df.loc[:, "open_date"] = df.timestamp.map(lambda quote: open_date(quote))
-        df.loc[:, "close_date"] = df.close_time.map(lambda quote: close_date(quote))
-        df = df[df["close_time"] <= int(time())]
-        quotes = json.loads(df.to_json(orient="records"))
-        return quotes
+        # df = self._build_dataframe(klines)
+        #
+        # df.loc[:, "open_date"] = df.timestamp.map(lambda quote: open_date(quote))
+        # df.loc[:, "close_date"] = df.close_time.map(lambda quote: close_date(quote))
+        # df = df[df["close_time"] <= int(time())]
+        # quotes = json.loads(df.to_json(orient="records"))
+        # ["timestamp", "open", "high": quote.get("high"), "low": quote.get("low"), "close": quote.get("close"), "volume": quote.get("volume"), "close_time": quote.get("close_time")]
+        #
+        return [
+            {
+                "timestamp": int(quote[0] / 1000),
+                "open": quote[1],
+                "high": quote[2],
+                "low": quote[3],
+                "close": quote[4],
+                "volume": quote[5],
+                "close_time": int(quote[6] / 1000),
+            }
+            for quote in klines
+        ]
 
     def _build_dataframe(self, klines: list[dict[str, Any]]):
         data = DataFrame(

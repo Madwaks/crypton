@@ -26,18 +26,18 @@ class Command(BaseCommand):
         if options["time_unit"]:
             tus = [TimeUnits.from_code(options["time_unit"])]
         else:
-            tus = [TimeUnits.from_code("1m"), TimeUnits.from_code("5m")]
+            tus = [TimeUnits.from_code("15m"), TimeUnits.from_code("5m")]
 
         computer = provide(IndicatorComputer)
-        from decision_maker.models import SymbolIndicator
-
-        SymbolIndicator.objects.all().delete()
-        from decision_maker.models import Distance
-
-        Distance.objects.all().delete()
-        from decision_maker.models import Indicator
-
-        Indicator.objects.all().delete()
+        # from decision_maker.models import SymbolIndicator
+        #
+        # SymbolIndicator.objects.all().delete()
+        # from decision_maker.models import Distance
+        #
+        # Distance.objects.all().delete()
+        # from decision_maker.models import Indicator
+        #
+        # Indicator.objects.all().delete()
         for symbol in tqdm(SYMBOLS_TO_COMPUTE):
             for tu in tus:
                 print(f"{symbol.name} // {tu.value}")

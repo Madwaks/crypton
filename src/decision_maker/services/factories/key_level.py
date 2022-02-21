@@ -35,17 +35,18 @@ class KeyLevelFactory:
         higher_res = quotes[["open", "high", "low", "close"]].max().max()
         lower_supp = quotes[["open", "high", "low", "close"]].min().min()
         prices = self._get_price_counter(quotes)
-        best_kmeans = self._find_best_kmeans(prices)
+        if len(prices) > 5:
+            best_kmeans = self._find_best_kmeans(prices)
 
-        key_levels = list(best_kmeans.cluster_centers_.flatten())
+            key_levels = list(best_kmeans.cluster_centers_.flatten())
 
-        key_levels += [higher_res, lower_supp]
+            key_levels += [higher_res, lower_supp]
 
-        return self._build_symbol_indicator_from_levels(
-            symbol=symbol,
-            time_unit=time_unit,
-            key_levels=[round(level, 8) for level in key_levels],
-        )
+            return self._build_symbol_indicator_from_levels(
+                symbol=symbol,
+                time_unit=time_unit,
+                key_levels=[round(level, 8) for level in key_levels],
+            )
 
     def _get_max_clusters(self, prices: list) -> int:
         return int((len(prices) + 1) / 2)
@@ -89,7 +90,7 @@ class KeyLevelFactory:
         kmeans_results: dict[float, KMeans] = dict()
         array = np.array(prices).reshape(-1, 1)
         max_clusters = self._get_max_clusters(prices)
-        for n_cluster in range(5, max_clusters):
+        for n_cluster in range(5, 6 if max_clusters <= 5 else max_clusters):
             kmeans = KMeans(n_clusters=n_cluster)
             kmeans.fit(array)
             labels = kmeans.fit_predict(array)

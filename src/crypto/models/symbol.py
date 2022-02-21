@@ -28,7 +28,6 @@ class Symbol(AbstractModel):
         base_field=CharField(max_length=64, null=True), size=10, null=True, blank=True
     )
     objects = Manager()
-    last_quotes = LastQuoteManager()
 
     def __str__(self) -> CharField:
         return self.name

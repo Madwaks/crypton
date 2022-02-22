@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from dateutil import tz
 
 from crypto.models import Symbol
-from crypto.utils.most_traded_coins import MOST_TRADED_COINS
+from crypto.utils.most_traded_coins import MOST_TRADED_COINS, MOST_VARIANCE_COINS
 from utils.enums import TimeUnits
 
-SYMBOLS_TO_COMPUTE = Symbol.objects.filter(name__in=MOST_TRADED_COINS)
+SYMBOLS_TO_COMPUTE = Symbol.objects.filter(name__in=MOST_VARIANCE_COINS)
 
 
 def is_quote_uncomplete(obj: dict, time_unit: TimeUnits):

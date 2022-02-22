@@ -9,6 +9,7 @@ from typing import Any
 
 import requests
 from binance.client import Client
+from dateutil import tz
 from injector import inject
 from injector import singleton
 from pandas import DataFrame, to_datetime
@@ -118,17 +119,10 @@ class BinanceClient(Client, AbstractAPIClient):
             klines = self.get_historical_klines(
                 symbol.name, time_unit.value, start.strftime("%d %b %Y %H:%M:%S")
             )
+            if not klines and not symbol.quotes.exists():
+                print([symbol.name] * 5)
         except Exception:
             raise NotAvailableException(f"{symbol.name} not found on Binance")
-
-        # df = self._build_dataframe(klines)
-        #
-        # df.loc[:, "open_date"] = df.timestamp.map(lambda quote: open_date(quote))
-        # df.loc[:, "close_date"] = df.close_time.map(lambda quote: close_date(quote))
-        # df = df[df["close_time"] <= int(time())]
-        # quotes = json.loads(df.to_json(orient="records"))
-        # ["timestamp", "open", "high": quote.get("high"), "low": quote.get("low"), "close": quote.get("close"), "volume": quote.get("volume"), "close_time": quote.get("close_time")]
-        #
         return [
             {
                 "timestamp": int(quote[0] / 1000),
@@ -140,6 +134,7 @@ class BinanceClient(Client, AbstractAPIClient):
                 "close_time": int(quote[6] / 1000),
             }
             for quote in klines
+            if int(quote[6] / 1000) < time()
         ]
 
     def _build_dataframe(self, klines: list[dict[str, Any]]):

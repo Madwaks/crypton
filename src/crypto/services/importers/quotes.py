@@ -56,7 +56,8 @@ class QuoteImporter:
 
     def _perform_save(self, quotes: list[Quote], symbol: Symbol, time_unit: TimeUnits):
         Quote.objects.bulk_create(quotes)
+        symbol.quotes.filter(time_unit=time_unit.value).update(is_last=False)
         last_quote: Quote = symbol.get_last_quote(time_unit=time_unit)
         last_quote.is_last = True
         last_quote.save()
-        self.logger.info(f"Stored {len(quotes)} for {symbol}")
+        self.logger.info(f"Last close for {symbol.name} is {last_quote.close_date}")

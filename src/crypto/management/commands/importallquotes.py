@@ -28,7 +28,11 @@ class Command(BaseCommand):
         if options["time_unit"]:
             tus = [TimeUnits.from_code(options["time_unit"])]
         else:
-            tus = [TimeUnits.from_code("15m"), TimeUnits.from_code("5m")]
+            tus = [
+                TimeUnits.from_code("15m"),
+                TimeUnits.from_code("5m"),
+                TimeUnits.from_code("4h"),
+            ]
         quotes_storer = provide(QuoteImporter)
 
         from crypto.utils.etc import SYMBOLS_TO_COMPUTE

@@ -16,7 +16,3 @@ python src/manage.py importpairs
 python src/manage.py importallquotes
 python src/manage.py computeallindicators
 
-python src/manage.py importquotes --time-unit=15m --symbol=1INCHUSDT
-python src/manage.py importquotes --time-unit=4h --symbol=1INCHUSDT
-
-python src/manage.py computeallindicators

@@ -86,6 +86,7 @@ class Quote(Model):
         )
         indexes = [
             Index(fields=["timestamp", "symbol", "time_unit"]),
+            Index(fields=["time_unit"]),
             Index(fields=["symbol", "time_unit"]),
             Index(fields=["timestamp"]),
         ]

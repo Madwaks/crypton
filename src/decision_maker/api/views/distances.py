@@ -3,7 +3,6 @@ from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
 
 from crypto.models import Symbol
-from crypto.services.importers.quotes import QuoteImporter
 from crypto.utils.etc import SYMBOLS_TO_COMPUTE
 from decision_maker.api.serializers.distances import DistanceSerializer
 from decision_maker.models import Distance
@@ -21,7 +20,7 @@ class DistanceView(ListAPIView):
         time_unit = TimeUnits.from_code(self.request.GET.get("time_unit"))
         if time_unit is None:
             raise NotFound(f"Wrong query params :{self.request.GET.get('time_unit')}")
-        symbols = SYMBOLS_TO_COMPUTE
+        symbols = self._select_symbols(SYMBOLS_TO_COMPUTE, time_unit=time_unit)
         distances = queryset.filter(quote__time_unit=time_unit).prefetch_related(
             "quote__symbol"
         )
@@ -36,9 +35,11 @@ class DistanceView(ListAPIView):
                 )
         else:
             self._compute_missing_last_distances(symbols, time_unit=time_unit)
-        return queryset.filter(quote__time_unit=time_unit).prefetch_related(
+        distances = queryset.filter(quote__time_unit=time_unit).prefetch_related(
             "quote__symbol"
         )
+
+        return distances
 
     def _compute_missing_last_distances(
         self, symbols: list[Symbol], time_unit: TimeUnits
@@ -46,3 +47,13 @@ class DistanceView(ListAPIView):
         ind_computer = provide(IndicatorComputer)
         for symbol in symbols:
             ind_computer.compute_indicators_for_symbol(symbol, time_unit)
+
+    def _select_symbols(self, symbols: QuerySet, time_unit: TimeUnits):
+        symbols_to_keep = [
+            symb.pk
+            for symb in symbols
+            if symb.quotes.get_mean_volume(500, time_unit)
+            * symb.quotes.get_mean_price(500, time_unit)
+            > 200_000
+        ]
+        return symbols.filter(pk__in=symbols_to_keep)
